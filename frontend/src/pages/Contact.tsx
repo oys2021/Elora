@@ -9,12 +9,12 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false)
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-background">
       <Header />
 
       <main className="mx-auto w-full max-w-[1300px] flex-1 px-4 py-12 sm:px-6 sm:py-20">
         <div className="grid grid-cols-1 gap-16 lg:grid-cols-12">
-          
+
           {/* Left Column: Brand Statement & Details */}
           <div className="flex flex-col justify-between lg:col-span-5">
             <div>

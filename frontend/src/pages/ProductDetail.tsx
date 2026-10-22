@@ -33,7 +33,7 @@ export default function ProductDetail() {
   const relatedProducts = allProducts.filter((p) => p.id !== product.id)
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-background">
       <Header />
 
       <main className="flex-1">

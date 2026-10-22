@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Spin } from 'antd'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { useBanners } from '../../queries/banners'
 import heroSlide1 from '../../assets/hero/slide-1.jpg'
@@ -45,10 +44,6 @@ export default function HeroCarousel() {
       ? [] // wait for the banners instead of flashing the defaults first
       : defaultSlides
 
-  // Still waiting on the first fetch: show a spinner in the box, not an empty
-  // dark rectangle with nothing in it.
-  const showSpinner = isLoading && slides.length === 0
-
   // The list can shrink while the page is open (banner removed or hidden).
   const current = slides.length ? index % slides.length : 0
   const multiple = slides.length > 1
@@ -66,14 +61,12 @@ export default function HeroCarousel() {
   }, [isPaused, index, slides.length])
 
   return (
-    <div className="w-full pb-6 pt-2">
+    <div className="w-full pb-4 pt-5 sm:pt-6">
       <div
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
-        className="relative flex h-[320px] w-full items-center justify-center overflow-hidden rounded-lg bg-neutral-100 md:h-[500px]"
+        className="relative h-[340px] w-full overflow-hidden rounded-3xl bg-neutral-900 md:h-[540px]"
       >
-        {showSpinner && <Spin size="large" />}
-
         {slides.map((slide, i) => (
           <img
             key={slide.id}
@@ -87,13 +80,28 @@ export default function HeroCarousel() {
 
         {slides[current]?.link && <SlideLink href={slides[current].link!}>{null}</SlideLink>}
 
+        {!banners?.length && !isLoading && (
+          <div className="pointer-events-none absolute inset-0 z-[2] flex items-end bg-gradient-to-t from-neutral-950/70 via-neutral-950/15 to-transparent p-6 pb-12 sm:px-24 sm:pb-16">
+            <div className="max-w-lg animate-fade-up text-white">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-rose-200">New season</p>
+              <h1 className="mt-3 text-4xl leading-[1.05] sm:text-6xl">Hair &amp; skin, beautifully you.</h1>
+              <Link
+                to="/products"
+                className="pointer-events-auto mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-900 transition hover:bg-rose-100"
+              >
+                Shop the collection
+              </Link>
+            </div>
+          </div>
+        )}
+
         {multiple && (
           <>
             <button
               type="button"
               onClick={() => go(-1)}
               aria-label="Previous slide"
-              className="absolute left-4 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-black shadow hover:bg-white"
+              className="absolute left-4 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-neutral-900 shadow-sm backdrop-blur transition hover:bg-white"
             >
               <LeftOutlined />
             </button>
@@ -101,7 +109,7 @@ export default function HeroCarousel() {
               type="button"
               onClick={() => go(1)}
               aria-label="Next slide"
-              className="absolute right-4 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-black shadow hover:bg-white"
+              className="absolute right-4 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-neutral-900 shadow-sm backdrop-blur transition hover:bg-white"
             >
               <RightOutlined />
             </button>
@@ -113,7 +121,7 @@ export default function HeroCarousel() {
                   type="button"
                   aria-label={`Go to slide ${i + 1}`}
                   onClick={() => setIndex(i)}
-                  className={`h-2 w-2 rounded-full transition-colors ${i === current ? 'bg-white' : 'bg-white/40'}`}
+                  className={`h-1.5 rounded-full transition-all duration-500 ${i === current ? 'w-8 bg-white' : 'w-1.5 bg-white/50'}`}
                 />
               ))}
             </div>

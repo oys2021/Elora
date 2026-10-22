@@ -1,18 +1,150 @@
+@layer theme, base, antd, components, utilities;
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Elora design system — warm "boutique" look.
+ * The store's pages use Tailwind's neutral / pink / rose scales directly, so
+ * those scales are re-tuned here: warm ink greys, and a dusty-rose brand ramp.
+ * Change the look of the whole store from this file.
+ */
 
 @theme {
-  --font-sans: 'Roboto', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+
+  /* Slightly larger small sizes — the store used a lot of tiny text. */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 0.9rem;
+  --text-sm--line-height: 1.4rem;
+
+  --color-black: oklch(0.22 0.02 15);
+  --color-white: oklch(1 0 0);
+
+  /* Warm ink neutrals */
+  --color-neutral-50: oklch(0.985 0.006 60);
+  --color-neutral-100: oklch(0.965 0.009 50);
+  --color-neutral-200: oklch(0.915 0.012 40);
+  --color-neutral-300: oklch(0.86 0.014 35);
+  --color-neutral-400: oklch(0.7 0.017 25);
+  --color-neutral-500: oklch(0.56 0.018 20);
+  --color-neutral-600: oklch(0.46 0.02 18);
+  --color-neutral-700: oklch(0.37 0.022 16);
+  --color-neutral-800: oklch(0.29 0.022 15);
+  --color-neutral-900: oklch(0.22 0.02 15);
+  --color-neutral-950: oklch(0.16 0.016 15);
+
+  /* Dusty-rose brand ramp (pink and rose share it) */
+  --color-rose-50: oklch(0.975 0.012 10);
+  --color-rose-100: oklch(0.945 0.025 10);
+  --color-rose-200: oklch(0.89 0.045 8);
+  --color-rose-300: oklch(0.82 0.065 6);
+  --color-rose-400: oklch(0.72 0.085 5);
+  --color-rose-500: oklch(0.6 0.105 4);
+  --color-rose-600: oklch(0.51 0.11 4);
+  --color-rose-700: oklch(0.43 0.1 4);
+  --color-rose-800: oklch(0.35 0.08 5);
+  --color-rose-900: oklch(0.28 0.06 6);
+  --color-pink-50: var(--color-rose-50);
+  --color-pink-100: var(--color-rose-100);
+  --color-pink-200: var(--color-rose-200);
+  --color-pink-300: var(--color-rose-300);
+  --color-pink-400: var(--color-rose-400);
+  --color-pink-500: var(--color-rose-500);
+  --color-pink-600: var(--color-rose-600);
+  --color-pink-700: var(--color-rose-700);
+  --color-pink-800: var(--color-rose-800);
+  --color-pink-900: var(--color-rose-900);
+
+  --animate-fade-up: fade-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-body {
-  font-family: 'Roboto', ui-sans-serif, system-ui, -apple-system, sans-serif;
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
 }
 
-html,
-body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-  margin: 0;
-  padding: 0;
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-blush: var(--blush);
+  --color-cream: var(--cream);
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.985 0.006 60);
+  --foreground: oklch(0.22 0.02 15);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.02 15);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.02 15);
+  --primary: oklch(0.51 0.11 4);
+  --primary-foreground: oklch(0.985 0.006 60);
+  --secondary: oklch(0.945 0.025 10);
+  --secondary-foreground: oklch(0.35 0.08 5);
+  --muted: oklch(0.965 0.009 50);
+  --muted-foreground: oklch(0.56 0.018 20);
+  --accent: oklch(0.945 0.025 10);
+  --accent-foreground: oklch(0.35 0.08 5);
+  --destructive: oklch(0.577 0.2 27);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.915 0.012 40);
+  --input: oklch(0.915 0.012 40);
+  --ring: oklch(0.72 0.085 5);
+  --blush: oklch(0.945 0.025 10);
+  --cream: oklch(0.965 0.016 70);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html, body { width: 100%; max-width: 100%; overflow-x: hidden; margin: 0; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    font-optical-sizing: auto;
+  }
+  ::selection { background: var(--color-rose-200); }
+}
+
+@utility eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-rose-600);
 }

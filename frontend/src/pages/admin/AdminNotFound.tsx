@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 export default function AdminNotFound() {
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-neutral-300 bg-white px-6 py-20 text-center">
-      <p className="font-serif text-5xl font-semibold text-neutral-200">404</p>
+      <p className="font-display text-5xl font-semibold text-neutral-200">404</p>
       <h1 className="mt-3 text-lg font-semibold text-neutral-900">Page not found</h1>
       <p className="mt-1 max-w-sm text-sm text-neutral-500">
         There's no admin page at this address.

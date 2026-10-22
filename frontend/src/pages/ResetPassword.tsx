@@ -45,7 +45,7 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-background">
       <Header />
 
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-16 sm:px-6">
@@ -69,7 +69,7 @@ export default function ResetPassword() {
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="mt-6 rounded-full bg-[#b97a8c] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#a56b7d]"
+              className="mt-6 rounded-full bg-rose-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-rose-600"
             >
               Continue to Elora
             </button>
@@ -94,7 +94,7 @@ export default function ResetPassword() {
                 type="primary"
                 htmlType="submit"
                 loading={submitting}
-                className="!border-none !bg-[#b97a8c] hover:!bg-[#a56b7d]"
+                className="!border-none !bg-rose-500 hover:!bg-rose-600"
               >
                 Reset password
               </Button>

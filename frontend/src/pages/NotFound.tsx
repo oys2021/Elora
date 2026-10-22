@@ -8,11 +8,11 @@ import FloatingActions from '../components/common/FloatingActions'
 // also any known route that resolves to nothing (e.g. a deleted product).
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-background">
       <Header />
 
       <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-center px-4 py-24 text-center sm:px-6">
-        <p className="font-serif text-7xl font-semibold text-neutral-200 sm:text-8xl">404</p>
+        <p className="font-display text-7xl font-semibold text-neutral-200 sm:text-8xl">404</p>
         <h1 className="mt-4 text-xl font-semibold text-neutral-900">Page not found</h1>
         <p className="mt-2 max-w-sm text-sm text-neutral-500">
           The page you're looking for doesn't exist, or may have been moved.
@@ -28,7 +28,7 @@ export default function NotFound() {
           </Link>
           <Link
             to="/products"
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-300 px-6 py-2.5 text-sm font-medium text-neutral-800 hover:bg-neutral-50"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-300 bg-white px-6 py-2.5 text-sm font-medium text-neutral-800 hover:bg-neutral-50"
           >
             <ShoppingOutlined />
             Browse Products

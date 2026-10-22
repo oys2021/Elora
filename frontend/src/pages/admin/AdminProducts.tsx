@@ -122,7 +122,7 @@ export default function AdminProducts() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-neutral-900">Products</h1>
+        <h1 className="font-serif text-xl font-semibold text-neutral-900">Products</h1>
         <Button
           type="primary"
           icon={<PlusOutlined />}

@@ -97,7 +97,7 @@ export default function PurchasePanel({ product, variants }: PurchasePanelProps)
       )}
 
       <div className="flex items-start justify-between gap-4">
-        <h1 className="text-[15px] font-medium leading-snug text-neutral-900 sm:text-base">{product.name}</h1>
+        <h1 className="text-3xl leading-tight text-neutral-900 sm:text-4xl">{product.name}</h1>
         <button
           type="button"
           aria-label="Open in new tab"
@@ -210,7 +210,7 @@ export default function PurchasePanel({ product, variants }: PurchasePanelProps)
           type="button"
           onClick={handleAddToCart}
           disabled={!inStock}
-          className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#b97a8c] text-sm font-semibold text-white transition hover:bg-[#a56b7d] disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-rose-500 text-sm font-semibold text-white transition hover:bg-rose-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <ShoppingCartOutlined />
           {inStock ? 'Add to Cart' : 'Out of Stock'}

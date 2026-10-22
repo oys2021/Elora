@@ -91,7 +91,7 @@ export default function AdminUsers() {
     <div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-neutral-900">Users</h1>
+          <h1 className="font-serif text-xl font-semibold text-neutral-900">Users</h1>
           <p className="mt-1 text-sm text-neutral-500">
             {total} registered customer{total === 1 ? '' : 's'}. Click a row to see their orders.
           </p>

@@ -30,7 +30,7 @@ export default function ProductListing({ title, filter }: ProductListingProps) {
   const heading = title ?? (productType && productTypeLabels[productType]) ?? category?.name ?? 'Products'
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-background">
       <Header />
 
       {/* Container wrapper matching Header boundaries */}

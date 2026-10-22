@@ -32,7 +32,7 @@ export default function AdminTransactions() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-neutral-900">Transactions</h1>
+        <h1 className="font-serif text-xl font-semibold text-neutral-900">Transactions</h1>
         <p className="text-sm text-neutral-500">
           Total: <span className="font-semibold text-neutral-900">GHS {totalRevenue.toFixed(2)}</span>
         </p>

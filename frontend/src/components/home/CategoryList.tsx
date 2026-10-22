@@ -7,10 +7,10 @@ export default function CategoryList() {
   if (categories.length === 0) return null
 
   return (
-    <section className="w-full py-8">
+    <section className="w-full py-10 sm:py-14">
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-base font-medium text-neutral-900">Explore Popular Categories</h2>
-        <Link to="/products" className="text-[10px] text-neutral-400 underline hover:text-black">
+        <div><p className="eyebrow">Browse</p><h2 className="mt-1.5 text-2xl text-neutral-900 sm:text-3xl">Popular categories</h2></div>
+        <Link to="/products" className="text-sm font-semibold text-neutral-700 underline-offset-4 hover:text-rose-600 hover:underline">
           See all
         </Link>
       </div>
@@ -21,11 +21,11 @@ export default function CategoryList() {
           <Link
             key={category.id}
             to={`/categories/${category.slug}`}
-            className="flex flex-col items-center gap-2 text-center text-xs font-normal text-neutral-700 hover:text-black"
+            className="flex flex-col items-center gap-2 text-center group text-sm font-medium text-neutral-700 hover:text-rose-700"
           >
-            <div className="h-16 w-16 overflow-hidden rounded-full bg-neutral-100 shadow-sm sm:h-20 sm:w-20">
+            <div className="h-20 w-20 overflow-hidden rounded-full bg-blush ring-1 ring-neutral-200 ring-offset-4 ring-offset-background transition group-hover:ring-rose-400 sm:h-24 sm:w-24">
               {category.imageUrl && (
-                <img src={category.imageUrl} alt={category.name} className="h-full w-full object-cover" />
+                <img src={category.imageUrl} alt={category.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
               )}
             </div>
             <span className="line-clamp-1">{category.name}</span>

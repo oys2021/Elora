@@ -16,7 +16,7 @@ export default function Favorites() {
     .filter((p): p is Product => !!p)
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-[#FAF8F5]">
       <Header />
 
       <main className="flex-1">
@@ -28,8 +28,9 @@ export default function Favorites() {
 
         {!authLoading && !user && (
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6">
-            <h1 className="text-xl font-semibold text-neutral-900">Sign in to see your favorites</h1>
-            <p className="mt-2 text-sm text-neutral-500">
+            <span className="text-xs font-semibold uppercase tracking-widest text-[#b97a8c]">Saved Items</span>
+            <h1 className="mt-1 font-serif text-2xl font-semibold text-neutral-900 sm:text-3xl">Sign in to see your favorites</h1>
+            <p className="mt-2 text-xs text-neutral-500 sm:text-sm">
               Tap the heart icon on any product while signed in to save it here.
             </p>
           </div>
@@ -41,8 +42,9 @@ export default function Favorites() {
 
         {user && !isLoading && products.length === 0 && (
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6">
-            <h1 className="text-xl font-semibold text-neutral-900">No favorites yet</h1>
-            <p className="mt-2 text-sm text-neutral-500">
+            <span className="text-xs font-semibold uppercase tracking-widest text-[#b97a8c]">Saved Items</span>
+            <h1 className="mt-1 font-serif text-2xl font-semibold text-neutral-900 sm:text-3xl">No favorites yet</h1>
+            <p className="mt-2 text-xs text-neutral-500 sm:text-sm">
               Tap the heart icon on any product to save it here.
             </p>
           </div>

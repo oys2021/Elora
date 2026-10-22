@@ -12,7 +12,7 @@ export default function Home() {
   const bestsellers = products.filter((p) => p.isBestseller)
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-white">
+    <div className="flex min-h-screen w-full flex-col bg-background">
       {/* Full-width header */}
       <Header />
 

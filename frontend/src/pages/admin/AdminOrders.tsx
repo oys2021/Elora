@@ -44,7 +44,7 @@ export default function AdminOrders() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-neutral-900">Orders</h1>
+        <h1 className="font-serif text-xl font-semibold text-neutral-900">Orders</h1>
         <Select
           value={statusFilter}
           onChange={setStatusFilter}

@@ -14,7 +14,7 @@ export default function StarRating({ value, onChange, size = 'sm' }: StarRatingP
   const textSize = size === 'lg' ? 'text-xl' : 'text-xs'
 
   return (
-    <span className={`flex items-center gap-0.5 text-amber-400 ${textSize}`}>
+    <span className={`flex items-center gap-0.5 text-yellow-400 ${textSize}`}>
       {[1, 2, 3, 4, 5].map((n) =>
         interactive ? (
           <button

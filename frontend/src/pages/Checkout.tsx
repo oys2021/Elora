@@ -29,10 +29,6 @@ const paymentOptions: { key: PaymentMethod; label: string; description: string }
   { key: 'airteltigo', label: 'AirtelTigo Money', description: 'Pay via prompt' },
 ]
 
-// No real payment provider is wired up yet, so mobile money is simulated: this
-// just gives the "Pay Now" step a moment to feel like it did something before
-// the (always-successful) dummy charge on the server. See
-// backend/src/services/dummyPayment.service.js.
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export default function Checkout() {
@@ -80,8 +76,6 @@ export default function Checkout() {
     }
 
     try {
-      // Only mobile money goes through the (simulated) payment gateway; cash
-      // is settled in person, so there's nothing to "process" up front.
       if (paymentMethod !== 'cash') {
         setIsProcessingPayment(true)
         await sleep(1200)
@@ -92,17 +86,11 @@ export default function Checkout() {
       setStep('success')
     } catch (err) {
       if (err instanceof ZodError) {
-        // The server only ever sends this response after successfully creating
-        // the order (see order.controller.js), so a ZodError here means the
-        // order went through and we merely failed to read the confirmation back
-        // — never tell the customer to retry, or they could be charged twice.
         clearCart()
         setPlacedOrder(null)
         setStep('success')
       } else if (err instanceof ApiError) {
         setOrderError(err.message)
-        // Something in the cart (e.g. an item that sold out) is invalid, so go
-        // back to let the customer see their bag rather than retry blindly.
         if (err.code === 'INSUFFICIENT_STOCK' || err.code === 'VARIANT_NOT_FOUND') {
           setStep('details')
         }
@@ -116,14 +104,14 @@ export default function Checkout() {
 
   if (step !== 'success' && items.length === 0) {
     return (
-      <div className="flex min-h-screen flex-col bg-white">
+      <div className="flex min-h-screen flex-col bg-[#FAF8F5]">
         <Header />
         <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-center px-4 py-24 text-center sm:px-6">
-          <h1 className="text-xl font-semibold text-neutral-900">Your bag is empty</h1>
+          <h1 className="font-serif text-2xl font-semibold text-neutral-900">Your bag is empty</h1>
           <p className="mt-2 text-sm text-neutral-500">Add something to your bag before checking out.</p>
           <Link
             to="/products"
-            className="mt-6 rounded-full bg-black px-5 py-2 text-sm text-white hover:bg-neutral-800"
+            className="mt-6 rounded-full bg-neutral-900 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-neutral-800"
           >
             Browse products
           </Link>
@@ -137,17 +125,17 @@ export default function Checkout() {
   if (step === 'success') {
     const paid = placedOrder?.status === 'PAID'
     return (
-      <div className="flex min-h-screen flex-col bg-white">
+      <div className="flex min-h-screen flex-col bg-[#FAF8F5]">
         <Header />
         <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-center px-4 py-24 text-center sm:px-6">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-700 text-white">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-700 text-white shadow-sm">
             <CheckOutlined className="text-2xl" />
           </div>
-          <h1 className="mt-6 text-lg font-semibold text-neutral-900">
+          <h1 className="mt-6 font-serif text-xl font-semibold text-neutral-900 sm:text-2xl">
             Your order is being prepared for {fulfillment === 'pickup' ? 'pickup' : 'delivery'}!
           </h1>
           {placedOrder && (
-            <div className="mt-4 rounded-xl border border-neutral-200 bg-neutral-50 px-5 py-3 text-sm">
+            <div className="mt-4 rounded-xl border border-neutral-200/80 bg-white px-6 py-4 text-xs shadow-sm">
               <p className="text-neutral-500">
                 Order <span className="font-medium text-neutral-900">#{placedOrder.id.slice(0, 8).toUpperCase()}</span>
               </p>
@@ -162,12 +150,12 @@ export default function Checkout() {
               </p>
             </div>
           )}
-          <p className="mt-3 text-sm text-neutral-500">We will contact you once ready.</p>
-          <div className="mt-8 flex w-full max-w-xs flex-col gap-2">
+          <p className="mt-3 text-xs text-neutral-500">We will contact you once ready.</p>
+          <div className="mt-8 flex w-full max-w-xs flex-col gap-2.5">
             {user && (
               <Link
                 to="/orders"
-                className="w-full rounded-full border border-neutral-300 py-3 text-center text-sm font-medium text-neutral-800 hover:bg-neutral-50"
+                className="w-full rounded-full border border-neutral-300 py-3 text-center text-xs font-semibold uppercase tracking-wider text-neutral-800 transition hover:bg-neutral-50"
               >
                 View my orders
               </Link>
@@ -175,7 +163,7 @@ export default function Checkout() {
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="w-full rounded-full bg-rose-300 py-3 text-sm font-medium text-white hover:bg-rose-400"
+              className="w-full rounded-full bg-[#b56b82] py-3 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-[#a35c72]"
             >
               Continue shopping
             </button>
@@ -188,25 +176,25 @@ export default function Checkout() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-[#FAF8F5]">
       <Header />
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-6 sm:px-6">
+      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-8 sm:px-6 sm:py-12">
         <button
           type="button"
           onClick={() => (stepIndex > 0 ? setStep(steps[stepIndex - 1].key) : navigate(-1))}
-          className="mb-6 inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-900"
+          className="mb-6 inline-flex items-center gap-1 text-xs text-neutral-500 transition hover:text-neutral-900"
         >
           <LeftOutlined className="text-[10px]" />
           Back to {stepIndex > 0 ? steps[stepIndex - 1].label.toLowerCase() : 'cart'}
         </button>
 
         {/* Delivery / Pickup toggle */}
-        <div className="mb-6 flex rounded-full bg-neutral-100 p-1">
+        <div className="mb-6 flex rounded-full bg-neutral-200/60 p-1">
           <button
             type="button"
             onClick={() => setFulfillment('delivery')}
-            className={`flex-1 rounded-full py-2 text-xs font-medium transition ${
+            className={`flex-1 rounded-full py-2 text-xs font-semibold transition ${
               fulfillment === 'delivery' ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500'
             }`}
           >
@@ -215,8 +203,8 @@ export default function Checkout() {
           <button
             type="button"
             onClick={() => setFulfillment('pickup')}
-            className={`flex-1 rounded-full py-2 text-xs font-medium transition ${
-              fulfillment === 'pickup' ? 'bg-rose-300 text-white shadow-sm' : 'text-neutral-500'
+            className={`flex-1 rounded-full py-2 text-xs font-semibold transition ${
+              fulfillment === 'pickup' ? 'bg-[#b56b82] text-white shadow-sm' : 'text-neutral-500'
             }`}
           >
             Pick Up
@@ -229,14 +217,14 @@ export default function Checkout() {
             <div key={s.key} className="flex flex-1 items-center last:flex-none">
               <div className="flex flex-col items-center gap-1">
                 <div
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-medium ${
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${
                     i <= stepIndex ? 'bg-neutral-900 text-white' : 'border border-neutral-300 text-neutral-400'
                   }`}
                 >
                   {i + 1}
                 </div>
                 <span
-                  className={`whitespace-nowrap text-center text-[10px] ${
+                  className={`whitespace-nowrap text-center text-[10px] font-medium ${
                     i <= stepIndex ? 'text-neutral-900' : 'text-neutral-400'
                   }`}
                 >
@@ -255,42 +243,42 @@ export default function Checkout() {
             {orderError && <Alert type="error" showIcon closable message={orderError} className="mb-6" onClose={() => setOrderError(null)} />}
 
             {fulfillment === 'pickup' ? (
-              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-900 bg-neutral-50 p-4">
-                <input type="radio" checked readOnly className="mt-1" />
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-900 bg-white p-4 shadow-sm">
+                <input type="radio" checked readOnly className="mt-1 accent-[#b56b82]" />
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-neutral-900">Elora Beauty Salon Store</p>
+                    <p className="text-xs font-semibold text-neutral-900">Elora Beauty Salon Store</p>
                     <EnvironmentOutlined className="text-neutral-400" />
                   </div>
                   <p className="mt-1 text-xs text-neutral-500">14 Street, Dome Pillar 2, Accra</p>
-                  <p className="mt-2 text-xs text-neutral-400">
+                  <p className="mt-2 text-[11px] text-neutral-400">
                     Opening Hours: Monday - Friday (9:00am - 5:00pm)
                   </p>
                 </div>
               </label>
             ) : (
-              <div className="rounded-xl border border-neutral-200 p-4">
-                <p className="text-sm font-medium text-neutral-900">Delivery Address</p>
+              <div className="rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm">
+                <p className="text-xs font-semibold text-neutral-900">Delivery Address</p>
                 <Input
                   placeholder="Street address"
                   size="large"
-                  className="mt-3"
+                  className="mt-3 !text-xs !rounded-lg"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                 />
-                <Input placeholder="City" size="large" className="mt-3" value={city} onChange={(e) => setCity(e.target.value)} />
+                <Input placeholder="City" size="large" className="mt-3 !text-xs !rounded-lg" value={city} onChange={(e) => setCity(e.target.value)} />
               </div>
             )}
 
-            <div className="mt-6">
-              <h3 className="text-sm font-semibold text-neutral-900">Enter Your Details</h3>
-              <p className="mt-1 text-xs text-neutral-500">
+            <div className="mt-6 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-900">Enter Your Details</h3>
+              <p className="mt-1 text-[11px] text-neutral-500">
                 We take your details so we know who is coming for their products
               </p>
 
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-neutral-500">
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
                     First Name *
                   </label>
                   <Input
@@ -298,10 +286,11 @@ export default function Checkout() {
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     size="large"
+                    className="!text-xs !rounded-lg"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-neutral-500">
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
                     Last Name *
                   </label>
                   <Input
@@ -309,12 +298,13 @@ export default function Checkout() {
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     size="large"
+                    className="!text-xs !rounded-lg"
                   />
                 </div>
               </div>
 
               <div className="mt-3">
-                <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-neutral-500">
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
                   Email *
                 </label>
                 <Input
@@ -323,11 +313,12 @@ export default function Checkout() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   size="large"
+                  className="!text-xs !rounded-lg"
                 />
               </div>
 
               <div className="mt-3">
-                <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-neutral-500">
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
                   Phone Number *
                 </label>
                 <Input
@@ -336,14 +327,12 @@ export default function Checkout() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   size="large"
+                  className="!text-xs"
                 />
               </div>
 
               <Checkbox checked={saveInfo} onChange={(e) => setSaveInfo(e.target.checked)} className="mt-4">
                 <span className="text-xs text-neutral-700">Save this info for next time</span>
-                <p className="text-[10px] text-neutral-400">
-                  Your details will be pre-filled at payment on this device.
-                </p>
               </Checkbox>
             </div>
 
@@ -353,7 +342,7 @@ export default function Checkout() {
               block
               disabled={!detailsValid}
               onClick={() => setStep('payment')}
-              className="!mt-6 !rounded-full !border-none !bg-rose-300 hover:!bg-rose-400"
+              className="!mt-6 !h-11 !rounded-full !border-none !bg-[#b56b82] !text-xs !font-semibold !uppercase !tracking-wider hover:!bg-[#a35c72]"
             >
               Confirm Order
             </Button>
@@ -361,8 +350,8 @@ export default function Checkout() {
         )}
 
         {step === 'payment' && (
-          <div>
-            <h3 className="mb-4 text-sm font-semibold text-neutral-900">How do you intend to pay?</h3>
+          <div className="rounded-xl border border-neutral-200/80 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-neutral-900">How do you intend to pay?</h3>
             <div className="space-y-3">
               {paymentOptions.map((option) => (
                 <label
@@ -376,10 +365,11 @@ export default function Checkout() {
                     name="payment"
                     checked={paymentMethod === option.key}
                     onChange={() => setPaymentMethod(option.key)}
+                    className="accent-[#b56b82]"
                   />
                   <div>
-                    <p className="text-sm font-medium text-neutral-900">{option.label}</p>
-                    <p className="text-xs text-neutral-500">{option.description}</p>
+                    <p className="text-xs font-semibold text-neutral-900">{option.label}</p>
+                    <p className="text-[11px] text-neutral-500">{option.description}</p>
                   </div>
                 </label>
               ))}
@@ -391,7 +381,7 @@ export default function Checkout() {
               block
               disabled={!paymentMethod}
               onClick={() => setStep('confirm')}
-              className="!mt-6 !rounded-full !border-none !bg-rose-300 hover:!bg-rose-400"
+              className="!mt-6 !h-11 !rounded-full !border-none !bg-[#b56b82] !text-xs !font-semibold !uppercase !tracking-wider hover:!bg-[#a35c72]"
             >
               Continue
             </Button>
@@ -402,16 +392,16 @@ export default function Checkout() {
           <div>
             {orderError && <Alert type="error" showIcon closable message={orderError} className="mb-6" onClose={() => setOrderError(null)} />}
 
-            <div className="rounded-xl bg-neutral-50 p-4">
-              <p className="text-sm font-semibold text-neutral-900">Order Summary ({items.length} items)</p>
+            <div className="rounded-xl border border-neutral-200/80 bg-white p-6 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-wider text-neutral-900">Order Summary ({items.length} items)</p>
 
               {items.map((item) => (
-                <div key={item.id} className="mt-3 space-y-1.5 text-xs">
+                <div key={item.id} className="mt-3 space-y-1.5 border-b border-neutral-100 pb-3 text-xs">
                   <div className="flex justify-between text-neutral-500">
                     <span>Product</span>
-                    <span className="text-right text-neutral-900">
+                    <span className="text-right font-medium text-neutral-900">
                       {item.name}
-                      {item.variant && <span className="block text-neutral-400">{item.variant}</span>}
+                      {item.variant && <span className="block text-[10px] text-neutral-400">{item.variant}</span>}
                     </span>
                   </div>
                   <div className="flex justify-between text-neutral-500">
@@ -425,7 +415,7 @@ export default function Checkout() {
                 </div>
               ))}
 
-              <div className="mt-3 space-y-1.5 border-t border-neutral-200 pt-3 text-xs text-neutral-500">
+              <div className="mt-3 space-y-1.5 pt-2 text-xs text-neutral-500">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span>GHS {subtotal.toFixed(2)}</span>
@@ -440,7 +430,7 @@ export default function Checkout() {
                 </div>
               </div>
 
-              <div className="mt-3 flex justify-between border-t border-neutral-200 pt-3 text-sm font-semibold text-neutral-900">
+              <div className="mt-4 flex justify-between border-t border-neutral-200 pt-3 text-sm font-semibold text-neutral-900">
                 <span>Total</span>
                 <span>GHS {subtotal.toFixed(2)}</span>
               </div>
@@ -453,7 +443,7 @@ export default function Checkout() {
               loading={createOrder.isPending || isProcessingPayment}
               icon={isProcessingPayment ? <LoadingOutlined /> : undefined}
               onClick={handlePlaceOrder}
-              className="!mt-6 !rounded-full !border-none !bg-rose-300 hover:!bg-rose-400"
+              className="!mt-6 !h-11 !rounded-full !border-none !bg-[#b56b82] !text-xs !font-semibold !uppercase !tracking-wider hover:!bg-[#a35c72]"
             >
               {isProcessingPayment ? 'Processing payment…' : 'Confirm order'}
             </Button>
@@ -462,7 +452,7 @@ export default function Checkout() {
               block
               disabled={createOrder.isPending || isProcessingPayment}
               onClick={() => navigate('/')}
-              className="!mt-3 !rounded-full"
+              className="!mt-3 !h-11 !rounded-full !text-xs !font-semibold !uppercase !tracking-wider"
             >
               Cancel
             </Button>

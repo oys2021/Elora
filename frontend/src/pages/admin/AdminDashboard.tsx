@@ -27,7 +27,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-neutral-900">Dashboard</h1>
+      <h1 className="font-serif text-xl font-semibold text-neutral-900">Dashboard</h1>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {stats.map((stat) => (

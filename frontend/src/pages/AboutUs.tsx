@@ -4,14 +4,15 @@ import FloatingActions from '../components/common/FloatingActions'
 
 export default function AboutUs() {
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-[#FAF8F5]">
       <Header />
 
       {/* Main container matches Header width and expands vertically */}
-      <main className="mx-auto w-full max-w-[1300px] flex-1 px-4 py-10 sm:px-6 sm:py-14">
-        <h1 className="text-2xl font-semibold text-neutral-900 sm:text-3xl">About Elora</h1>
+      <main className="mx-auto w-full max-w-[1300px] flex-1 px-4 py-12 sm:px-6 sm:py-16">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-[#b97a8c]">OUR STORY</p>
+        <h1 className="mt-1 font-serif text-3xl font-semibold text-neutral-900 sm:text-4xl">About Elora</h1>
         
-        <div className="mt-6 max-w-3xl space-y-4 text-sm leading-relaxed text-neutral-600 sm:text-base">
+        <div className="mt-8 max-w-3xl space-y-6 text-sm leading-relaxed text-neutral-600 sm:text-base">
           <p>
             Elora was founded on a simple belief: everyone deserves hair and skincare that's crafted for
             them, not just sold to them. From premium human-hair wigs to gentle, effective skincare, every

@@ -83,7 +83,7 @@ export default function AdminLayout() {
     <div className="flex min-h-screen bg-neutral-50">
       <aside className="hidden w-56 shrink-0 border-r border-neutral-200 bg-white sm:block">
         <div className="border-b border-neutral-100 px-5 py-4">
-          <Link to="/" className="font-serif text-xl font-semibold text-neutral-900">
+          <Link to="/" className="font-display text-xl font-semibold text-neutral-900">
             Elora <span className="text-xs font-normal text-neutral-400">Admin</span>
           </Link>
         </div>
