@@ -252,7 +252,7 @@ export default function Checkout() {
 
         {step === 'details' && (
           <div>
-            {orderError && <Alert type="error" showIcon closable message={orderError} className="mb-4" onClose={() => setOrderError(null)} />}
+            {orderError && <Alert type="error" showIcon closable message={orderError} className="mb-6" onClose={() => setOrderError(null)} />}
 
             {fulfillment === 'pickup' ? (
               <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-900 bg-neutral-50 p-4">
@@ -400,7 +400,7 @@ export default function Checkout() {
 
         {step === 'confirm' && (
           <div>
-            {orderError && <Alert type="error" showIcon closable message={orderError} className="mb-4" onClose={() => setOrderError(null)} />}
+            {orderError && <Alert type="error" showIcon closable message={orderError} className="mb-6" onClose={() => setOrderError(null)} />}
 
             <div className="rounded-xl bg-neutral-50 p-4">
               <p className="text-sm font-semibold text-neutral-900">Order Summary ({items.length} items)</p>

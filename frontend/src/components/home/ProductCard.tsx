@@ -8,8 +8,9 @@ export default function ProductCard({ product }: { product: Product }) {
   const navigate = useNavigate()
   const { data: reviewData } = useReviews(product.id)
 
-  // Products with no variants, or no stock left in any of them, can't be bought.
-  const outOfStock = product.variantCount === 0 || product.totalStock === 0
+  // Products with no variants, no stock left in any of them, or manually
+  // flagged out of stock by an admin, can't be bought.
+  const outOfStock = product.isOutOfStock || product.variantCount === 0 || product.totalStock === 0
   const price = product.minPrice ?? product.basePrice
 
   return (

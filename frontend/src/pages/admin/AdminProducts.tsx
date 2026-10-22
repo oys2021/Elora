@@ -84,6 +84,8 @@ export default function AdminProducts() {
       render: (_, record) =>
         record.variantCount === 0 ? (
           <Tag color="orange">Needs a variant</Tag>
+        ) : record.isOutOfStock ? (
+          <Tag color="red">Out of stock (flagged)</Tag>
         ) : record.totalStock === 0 ? (
           <Tag color="red">Out of stock</Tag>
         ) : (
@@ -179,6 +181,15 @@ export default function AdminProducts() {
             <Switch />
           </Form.Item>
           <Form.Item name="isBestseller" label="Show in 'Bestsellers'" valuePropName="checked" initialValue={false}>
+            <Switch />
+          </Form.Item>
+          <Form.Item
+            name="isOutOfStock"
+            label="Flag as Out of Stock"
+            valuePropName="checked"
+            initialValue={false}
+            extra="Overrides variant stock — customers can't buy this product while it's on, even if variants still show stock."
+          >
             <Switch />
           </Form.Item>
         </Form>

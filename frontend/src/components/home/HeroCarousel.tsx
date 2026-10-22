@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Spin } from 'antd'
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { useBanners } from '../../queries/banners'
 import heroSlide1 from '../../assets/hero/slide-1.jpg'
@@ -44,6 +45,10 @@ export default function HeroCarousel() {
       ? [] // wait for the banners instead of flashing the defaults first
       : defaultSlides
 
+  // Still waiting on the first fetch: show a spinner in the box, not an empty
+  // dark rectangle with nothing in it.
+  const showSpinner = isLoading && slides.length === 0
+
   // The list can shrink while the page is open (banner removed or hidden).
   const current = slides.length ? index % slides.length : 0
   const multiple = slides.length > 1
@@ -65,8 +70,10 @@ export default function HeroCarousel() {
       <div
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
-        className="relative h-[320px] w-full overflow-hidden rounded-lg bg-neutral-900 md:h-[500px]"
+        className="relative flex h-[320px] w-full items-center justify-center overflow-hidden rounded-lg bg-neutral-100 md:h-[500px]"
       >
+        {showSpinner && <Spin size="large" />}
+
         {slides.map((slide, i) => (
           <img
             key={slide.id}

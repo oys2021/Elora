@@ -58,6 +58,13 @@ Product.init(
       allowNull: false,
       defaultValue: false,
     },
+    // Manual admin override: true forces the product to show as out of stock
+    // regardless of what its variants' stockQuantity says.
+    isOutOfStock: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     syncStatus: {
       type: DataTypes.ENUM('PENDING', 'PROCESSING', 'SYNCED', 'FAILED'),
       defaultValue: 'PENDING',

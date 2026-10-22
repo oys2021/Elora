@@ -15,6 +15,9 @@ export const productSchema = z.object({
   isActive: z.boolean().optional(),
   isFeatured: z.boolean().default(false),
   isBestseller: z.boolean().default(false),
+  // Manual admin override — forces the storefront to treat this product as
+  // out of stock regardless of its variants' actual stockQuantity.
+  isOutOfStock: z.boolean().default(false),
   syncStatus: z.string().optional(),
   // Computed by the API from the product's variants.
   variantCount: z.coerce.number().default(0),
@@ -48,5 +51,6 @@ export const productFormSchema = z.object({
   imageUrls: z.array(z.string().url('Must be a valid URL')).default([]),
   isFeatured: z.boolean().default(false),
   isBestseller: z.boolean().default(false),
+  isOutOfStock: z.boolean().default(false),
 })
 export type ProductFormValues = z.infer<typeof productFormSchema>

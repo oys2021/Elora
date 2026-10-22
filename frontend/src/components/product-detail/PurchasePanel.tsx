@@ -61,8 +61,9 @@ export default function PurchasePanel({ product, variants }: PurchasePanelProps)
   }
 
   const price = matchedVariant ? matchedVariant.price : product.basePrice
-  // A product with no variants can't be bought, so it is out of stock.
-  const inStock = matchedVariant ? matchedVariant.stockQuantity > 0 : false
+  // Out if there's no variant, its stock is 0, or an admin manually flagged
+  // the product out of stock (which overrides actual variant stock).
+  const inStock = !product.isOutOfStock && (matchedVariant ? matchedVariant.stockQuantity > 0 : false)
   const variantLabel = matchedVariant
     ? [matchedVariant.lengthOption, matchedVariant.densityOption, matchedVariant.colorOption]
         .filter(Boolean)

@@ -44,8 +44,19 @@ export const createOrder = async ({
     // Resolve and validate every line first, and only then touch stock, so a
     // bad item further down the cart can't leave earlier ones half-deducted.
     for (const item of items) {
-      const variant = await ProductVariant.findByPk(item.variantId, { transaction: t });
+      const variant = await ProductVariant.findByPk(item.variantId, { include: Product, transaction: t });
       if (!variant) throw new AppError(`Variant ${item.variantId} not found`, 404, 'VARIANT_NOT_FOUND');
+
+      // Enforced here too, not just hidden in the UI — an admin's manual flag
+      // must block the order even if the variant itself still has stock.
+      if (variant.Product?.isOutOfStock) {
+        throw new AppError(
+          `${variant.Product.name} is currently out of stock`,
+          409,
+          'PRODUCT_OUT_OF_STOCK',
+          { variantId: item.variantId }
+        );
+      }
 
       const quantity = Number(item.quantity);
       if (!Number.isInteger(quantity) || quantity < 1) {

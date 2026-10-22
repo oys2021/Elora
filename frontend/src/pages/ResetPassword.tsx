@@ -87,7 +87,7 @@ export default function ResetPassword() {
               <Form.Item name="confirmPassword" label="Confirm new password">
                 <Input.Password prefix={<LockOutlined />} autoComplete="new-password" size="large" />
               </Form.Item>
-              {formError && <Alert type="error" showIcon message={formError} className="mb-4" />}
+              {formError && <Alert type="error" showIcon message={formError} className="mb-6" />}
               <Button
                 block
                 size="large"

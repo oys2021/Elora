@@ -138,7 +138,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                 <Form.Item name="email" label="Email">
                   <Input prefix={<MailOutlined />} autoComplete="email" placeholder="you@email.com" />
                 </Form.Item>
-                {formError && <Alert type="error" showIcon message={formError} className="mb-4" />}
+                {formError && <Alert type="error" showIcon message={formError} className="mb-6" />}
                 <Button block size="large" type="primary" htmlType="submit" loading={submitting} className={primaryButton}>
                   Send reset link
                 </Button>
@@ -187,7 +187,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                   >
                     Forgot password?
                   </button>
-                  {formError && tab === 'login' && <Alert type="error" showIcon message={formError} className="mb-4" />}
+                  {formError && tab === 'login' && <Alert type="error" showIcon message={formError} className="mb-6" />}
                   <Button block size="large" type="primary" htmlType="submit" loading={submitting} className={primaryButton}>
                     Log in
                   </Button>
@@ -212,7 +212,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                     <Input.Password prefix={<LockOutlined />} autoComplete="new-password" />
                   </Form.Item>
                   {formError && tab === 'register' && (
-                    <Alert type="error" showIcon message={formError} className="mb-4" />
+                    <Alert type="error" showIcon message={formError} className="mb-6" />
                   )}
                   <Button block size="large" type="primary" htmlType="submit" loading={submitting} className={primaryButton}>
                     Create account
