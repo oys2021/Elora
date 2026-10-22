@@ -1,31 +1,71 @@
-import { Button, Typography } from 'antd'
-import { useQuery } from '@tanstack/react-query'
-
-const { Title, Text } = Typography
-
-async function fetchHealth() {
-  const res = await fetch('/api/v1/health')
-  if (!res.ok) throw new Error('Request failed')
-  return res.json()
-}
+import { Routes, Route } from 'react-router-dom'
+import ScrollToTop from './components/common/ScrollToTop'
+import CartDrawer from './components/common/CartDrawer'
+import Home from './pages/Home'
+import ProductDetail from './pages/ProductDetail'
+import ProductListing from './pages/ProductListing'
+import AboutUs from './pages/AboutUs'
+import Contact from './pages/Contact'
+import Checkout from './pages/Checkout'
+import Account from './pages/Account'
+import Orders from './pages/Orders'
+import Favorites from './pages/Favorites'
+import Faq from './pages/Faq'
+import Returns from './pages/Returns'
+import Career from './pages/Career'
+import AdminLayout from './pages/admin/AdminLayout'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminProducts from './pages/admin/AdminProducts'
+import AdminCategories from './pages/admin/AdminCategories'
+import AdminBanners from './pages/admin/AdminBanners'
+import AdminUsers from './pages/admin/AdminUsers'
+import AdminOrders from './pages/admin/AdminOrders'
+import AdminTransactions from './pages/admin/AdminTransactions'
+import AdminNotFound from './pages/admin/AdminNotFound'
+import NotFound from './pages/NotFound'
+import ResetPassword from './pages/ResetPassword'
 
 function App() {
-  const { data, isFetching, isError, refetch } = useQuery({
-    queryKey: ['health'],
-    queryFn: fetchHealth,
-    enabled: false,
-  })
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gray-50">
-      <Title level={2}>Elora</Title>
-      <Text type="secondary">React + Vite + Tailwind + Ant Design + React Query</Text>
-      <Button type="primary" onClick={() => refetch()} loading={isFetching}>
-        Check backend health
-      </Button>
-      {isError && <Text type="danger">Could not reach backend</Text>}
-      {data && <Text type="success">Backend says: {JSON.stringify(data)}</Text>}
-    </div>
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/product/:slug" element={<ProductDetail />} />
+
+        <Route path="/new-in" element={<ProductListing title="New In" />} />
+        <Route path="/hot-sellers" element={<ProductListing title="Hot Sellers" filter="bestsellers" />} />
+        <Route path="/products" element={<ProductListing title="All Products" />} />
+        <Route path="/products/:productType" element={<ProductListing />} />
+        <Route path="/categories/:categorySlug" element={<ProductListing />} />
+
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+
+        <Route path="/account" element={<Account />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/favorites" element={<Favorites />} />
+        <Route path="/faq" element={<Faq />} />
+        <Route path="/returns" element={<Returns />} />
+        <Route path="/career" element={<Career />} />
+
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="categories" element={<AdminCategories />} />
+          <Route path="banners" element={<AdminBanners />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="transactions" element={<AdminTransactions />} />
+          <Route path="*" element={<AdminNotFound />} />
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <CartDrawer />
+    </>
   )
 }
 

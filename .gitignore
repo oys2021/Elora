@@ -31,3 +31,7 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Product photos (uploaded to Cloudinary, keep only the shot list in git)
+backend/product-images/*
+!backend/product-images/SHOT-LIST.md
