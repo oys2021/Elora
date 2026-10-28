@@ -31,9 +31,9 @@ export const productVariantFormSchema = z.object({
   price: z.coerce
     .number({ error: 'Price must be a number' })
     .positive('Price must be greater than 0'),
-  lengthOption: z.string().trim().optional(),
-  densityOption: z.string().trim().optional(),
-  colorOption: z.string().trim().optional(),
+  lengthOption: z.string().trim().optional().nullable(),
+  densityOption: z.string().trim().optional().nullable(),
+  colorOption: z.string().trim().optional().nullable(),
   stockQuantity: z.coerce
     .number({ error: 'Stock must be a number' })
     .int('Stock must be a whole number')

@@ -7,6 +7,7 @@ import ProductListing from './pages/ProductListing'
 import AboutUs from './pages/AboutUs'
 import Contact from './pages/Contact'
 import Checkout from './pages/Checkout'
+import PaymentResult from './pages/PaymentResult'
 import Account from './pages/Account'
 import Orders from './pages/Orders'
 import Favorites from './pages/Favorites'
@@ -18,6 +19,7 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminProducts from './pages/admin/AdminProducts'
 import AdminCategories from './pages/admin/AdminCategories'
 import AdminBanners from './pages/admin/AdminBanners'
+import AdminDelivery from './pages/admin/AdminDelivery'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminOrders from './pages/admin/AdminOrders'
 import AdminTransactions from './pages/admin/AdminTransactions'
@@ -42,6 +44,7 @@ function App() {
         <Route path="/about" element={<AboutUs />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/checkout/payment" element={<PaymentResult />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route path="/account" element={<Account />} />
@@ -56,6 +59,7 @@ function App() {
           <Route path="products" element={<AdminProducts />} />
           <Route path="categories" element={<AdminCategories />} />
           <Route path="banners" element={<AdminBanners />} />
+          <Route path="delivery" element={<AdminDelivery />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="transactions" element={<AdminTransactions />} />

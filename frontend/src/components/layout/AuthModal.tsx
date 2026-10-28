@@ -138,7 +138,14 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                 <Form.Item name="email" label="Email">
                   <Input prefix={<MailOutlined />} autoComplete="email" placeholder="you@email.com" />
                 </Form.Item>
-                {formError && <Alert type="error" showIcon message={formError} className="mb-6" />}
+                {formError && (
+                  <>
+                    <Alert type="error" showIcon message={formError} />
+                    {/* Fixed-height spacer: a real element in the flow, so it can't be
+                        collapsed away the way a margin can. */}
+                    <div className="h-5" aria-hidden="true" />
+                  </>
+                )}
                 <Button block size="large" type="primary" htmlType="submit" loading={submitting} className={primaryButton}>
                   Send reset link
                 </Button>
@@ -187,7 +194,12 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                   >
                     Forgot password?
                   </button>
-                  {formError && tab === 'login' && <Alert type="error" showIcon message={formError} className="mb-6" />}
+                  {formError && tab === 'login' && (
+                    <>
+                      <Alert type="error" showIcon message={formError} />
+                      <div className="h-5" aria-hidden="true" />
+                    </>
+                  )}
                   <Button block size="large" type="primary" htmlType="submit" loading={submitting} className={primaryButton}>
                     Log in
                   </Button>
@@ -212,7 +224,10 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                     <Input.Password prefix={<LockOutlined />} autoComplete="new-password" />
                   </Form.Item>
                   {formError && tab === 'register' && (
-                    <Alert type="error" showIcon message={formError} className="mb-6" />
+                    <>
+                      <Alert type="error" showIcon message={formError} />
+                      <div className="h-5" aria-hidden="true" />
+                    </>
                   )}
                   <Button block size="large" type="primary" htmlType="submit" loading={submitting} className={primaryButton}>
                     Create account

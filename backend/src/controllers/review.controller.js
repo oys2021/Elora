@@ -27,6 +27,7 @@ export const getAll = async (req, res, next) => {
       totalPages: result.totalPages,
       averageRating: result.averageRating,
       reviewCount: result.reviewCount,
+      ratingBreakdown: result.ratingBreakdown,
     });
   } catch (err) {
     next(err);

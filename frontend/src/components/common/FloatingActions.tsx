@@ -9,7 +9,14 @@ function WhatsAppIcon() {
   )
 }
 
+// Hidden for now. Set to true to bring back the scroll-to-top and WhatsApp buttons.
+const SHOW_FLOATING_ACTIONS = false
+
 export default function FloatingActions() {
+  return SHOW_FLOATING_ACTIONS ? <FloatingActionButtons /> : null
+}
+
+function FloatingActionButtons() {
   const [showScroll, setShowScroll] = useState(false)
 
   useEffect(() => {

@@ -105,7 +105,7 @@ export default function CartDrawer() {
             <Link
               to="/checkout"
               onClick={closeCart}
-              className="mt-4 block rounded-full bg-rose-300 py-3 text-center text-sm font-medium text-white hover:bg-rose-400"
+              className="mt-4 block rounded-full bg-rose-500 py-3 text-center text-sm font-semibold text-white transition hover:bg-rose-600"
             >
               Checkout
             </Link>

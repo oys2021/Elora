@@ -28,9 +28,12 @@ const money = (amount: number) => `GHS ${amount.toFixed(2)}`
 function SignInTags({ user }: { user: AdminUser }) {
   return (
     <div className="flex flex-wrap gap-1">
-      {user.hasPassword && <Tag color="blue">Password</Tag>}
-      {user.googleId && <Tag color="red">Google</Tag>}
-      {!user.hasPassword && !user.googleId && '—'}
+      {user.hasPassword ? (
+        <Tag color="blue">Password</Tag>
+      ) : (
+        // e.g. old Google-only accounts: they sign in again via "Forgot password".
+        <Tag color="gold">No password set</Tag>
+      )}
     </div>
   )
 }

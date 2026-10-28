@@ -119,8 +119,7 @@ export const forgotPassword = async (req, res, next) => {
     forgotPasswordLimiter.fail(key);
 
     await requestPasswordReset(email);
-    // Same response whether or not the email is registered — see
-    // requestPasswordReset's comment for why.
+   
     sendData(res, { message: 'If an account exists for that email, a reset link has been sent.' });
   } catch (err) {
     next(err);

@@ -16,7 +16,8 @@ export const sequelize = new Sequelize(
       acquire: 30000,
       idle: 10000,
     },
-    logging: env === 'development' ? console.log : false,
+    // SQL is noisy; set LOG_SQL=true in .env to see every query while debugging.
+    logging: process.env.LOG_SQL === 'true' ? console.log : false,
   },
 );
 

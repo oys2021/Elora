@@ -11,11 +11,21 @@ import {
   deleteOrder,
 } from '../services/order.service.js';
 
-// Admins can open any order; a customer only their own. Anything else looks like it doesn't exist.
+
 function assertCanView(req, order) {
   if (!req.user.isAdmin && order.userId !== req.user.id) {
     throw new AppError('Order not found', 404, 'ORDER_NOT_FOUND');
   }
+}
+
+// "024 123 4567", "+233241234567", "233241234567", "241234567" -> "0241234567".
+// Returns null if it isn't a 10-digit Ghana mobile number.
+function normalizeGhanaPhone(value) {
+  if (!value) return null;
+  let digits = value.replace(/\D/g, '');
+  if (digits.startsWith('233')) digits = `0${digits.slice(3)}`;
+  else if (digits.length === 9) digits = `0${digits}`;
+  return /^0[2-5]\d{8}$/.test(digits) ? digits : null;
 }
 
 const createSchema = z
@@ -33,16 +43,28 @@ const createSchema = z
       .min(1, 'Your cart is empty'),
     fulfillmentMethod: z.enum(['PICKUP', 'DELIVERY']).default('PICKUP'),
     deliveryAddress: z.string().trim().optional(),
-    deliveryCity: z.string().trim().optional(),
-    paymentMethod: z.enum(['CASH', 'MTN', 'TELECEL', 'AIRTELTIGO']).default('CASH'),
+    deliveryZoneId: z.uuid('Please choose a valid delivery location').optional(),
+    paymentMethod: z.enum(['CASH', 'MOBILE_MONEY', 'CARD']).default('CASH'),
+    // Mobile money only: which network, and the wallet number to prompt.
+    momoProvider: z.enum(['MTN', 'TELECEL', 'AIRTELTIGO']).optional(),
+    momoPhone: z.string().trim().optional(),
+    idempotencyKey: z.string().trim().min(8).max(100).optional(),
   })
   .check((ctx) => {
+    if (ctx.value.paymentMethod === 'MOBILE_MONEY') {
+      if (!ctx.value.momoProvider) {
+        ctx.issues.push({ code: 'custom', path: ['momoProvider'], message: 'Choose your mobile money network', input: ctx.value });
+      }
+      if (!normalizeGhanaPhone(ctx.value.momoPhone)) {
+        ctx.issues.push({ code: 'custom', path: ['momoPhone'], message: 'Enter a valid mobile money number', input: ctx.value });
+      }
+    }
     if (ctx.value.fulfillmentMethod !== 'DELIVERY') return;
     if (!ctx.value.deliveryAddress) {
       ctx.issues.push({ code: 'custom', path: ['deliveryAddress'], message: 'Delivery address is required', input: ctx.value });
     }
-    if (!ctx.value.deliveryCity) {
-      ctx.issues.push({ code: 'custom', path: ['deliveryCity'], message: 'City is required', input: ctx.value });
+    if (!ctx.value.deliveryZoneId) {
+      ctx.issues.push({ code: 'custom', path: ['deliveryZoneId'], message: 'Please choose a delivery location', input: ctx.value });
     }
   });
 
@@ -60,10 +82,11 @@ function parse(schema, body) {
 export const create = async (req, res, next) => {
   try {
     const values = parse(createSchema, req.body);
-    // The order belongs to whoever is signed in (or nobody, for a guest checkout). Never trust a userId from the request.
     const userId = req.user?.id ?? null;
-    const order = await createOrder({ ...values, userId });
-    sendData(res, order, 201);
+    if (values.paymentMethod === 'MOBILE_MONEY') values.momoPhone = normalizeGhanaPhone(values.momoPhone);
+    const { order, paymentAction } = await createOrder({ ...values, userId });
+    // paymentAction tells the checkout page what to do next for online payments.
+    sendData(res, { ...order.toJSON(), paymentAction }, 201);
   } catch (err) {
     next(err);
   }

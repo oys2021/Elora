@@ -21,6 +21,8 @@ export const reviewListResponseSchema = z.object({
       totalPages: z.number(),
       averageRating: z.number(),
       reviewCount: z.number(),
+      // Reviews per star rating across ALL reviews, e.g. { "5": 12, "4": 3, ... }.
+      ratingBreakdown: z.record(z.string(), z.number()).optional(),
     })
     .optional(),
 })

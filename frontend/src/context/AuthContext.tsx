@@ -17,7 +17,6 @@ interface AuthContextValue {
   // intentionally never reveals whether an account exists for it.
   forgotPassword: (email: string) => Promise<void>
   resetPassword: (values: { token: string; password: string }) => Promise<void>
-  loginWithGoogle: () => void
   logout: () => void
 }
 
@@ -98,17 +97,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(await authRequest<AuthUser>('/reset-password', values))
   }
 
-  const loginWithGoogle = () => {
-    window.location.href = `${API_URL}/auth/google`
-  }
-
   const logout = () => {
     window.location.href = `${API_URL}/auth/logout`
   }
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, login, register, forgotPassword, resetPassword, loginWithGoogle, logout }}
+      value={{ user, isLoading, login, register, forgotPassword, resetPassword, logout }}
     >
       {children}
     </AuthContext.Provider>

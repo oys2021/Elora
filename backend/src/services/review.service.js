@@ -44,7 +44,19 @@ export const getReviewsByProduct = async (productId, { page = 1, limit = 10 }) =
     raw: true,
   });
 
+  // How many reviews gave each star rating — over ALL reviews, not just this
+  // page, so the summary bars stay right however many pages there are.
+  const perStar = await Review.findAll({
+    where: { productId },
+    attributes: ['rating', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
+    group: ['rating'],
+    raw: true,
+  });
+  const ratingBreakdown = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  for (const row of perStar) ratingBreakdown[row.rating] = Number(row.count);
+
   return {
+    ratingBreakdown,
     reviews: rows,
     total: count,
     page,

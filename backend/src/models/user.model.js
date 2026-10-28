@@ -20,7 +20,9 @@ User.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    // Set for accounts created with "Continue with Google"; null for password accounts.
+    // Legacy: set on accounts created with the old "Continue with Google"
+    // (Google sign-in has been removed). Kept so those users' data stays linked;
+    // they sign in by setting a password through "Forgot password".
     googleId: {
       type: DataTypes.STRING,
       allowNull: true,

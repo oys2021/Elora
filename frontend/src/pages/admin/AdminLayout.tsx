@@ -3,6 +3,7 @@ import { NavLink, Outlet, Link } from 'react-router-dom'
 import { Button, Spin } from 'antd'
 import AuthModal from '../../components/layout/AuthModal'
 import { useAuth } from '../../context/AuthContext'
+import NotificationBell from '../../components/common/NotificationBell'
 import {
   DashboardOutlined,
   ShoppingOutlined,
@@ -11,6 +12,7 @@ import {
   DollarOutlined,
   PictureOutlined,
   TeamOutlined,
+  CarOutlined,
 } from '@ant-design/icons'
 
 const navItems = [
@@ -19,6 +21,7 @@ const navItems = [
   { to: '/admin/categories', label: 'Categories', icon: <AppstoreOutlined />, end: false },
   { to: '/admin/users', label: 'Users', icon: <TeamOutlined />, end: false },
   { to: '/admin/banners', label: 'Banners', icon: <PictureOutlined />, end: false },
+  { to: '/admin/delivery', label: 'Delivery Rates', icon: <CarOutlined />, end: false },
   { to: '/admin/orders', label: 'Orders', icon: <FileTextOutlined />, end: false },
   { to: '/admin/transactions', label: 'Transactions', icon: <DollarOutlined />, end: false },
 ]
@@ -127,6 +130,7 @@ export default function AdminLayout() {
         <header className="flex items-center justify-between border-b border-neutral-200 bg-white px-6 py-4">
           <h1 className="text-sm font-semibold text-neutral-900">Admin</h1>
           <div className="flex items-center gap-4">
+            <NotificationBell audience="admin" className="text-neutral-600" />
             <Link to="/" className="text-xs text-neutral-500 underline hover:text-neutral-900">
               View Storefront
             </Link>

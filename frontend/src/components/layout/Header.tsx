@@ -17,15 +17,10 @@ import {
 } from '@ant-design/icons'
 import AuthModal from './AuthModal'
 import { useCart } from '../../context/CartContext'
+import NotificationBell from '../common/NotificationBell'
 import { useAuth } from '../../context/AuthContext'
+import { useCategories } from '../../queries/categories'
 import logo from '../../assets/brand/logo.png'
-
-const productLinks: MenuProps['items'] = [
-  { key: 'wigs', label: 'Wigs' },
-  { key: 'skincare', label: 'Skincare' },
-  { key: 'body-care', label: 'Body Care' },
-  { key: 'fragrances', label: 'Fragrances' },
-]
 
 const navLinks = [
   { label: 'HOME', to: '/' },
@@ -40,6 +35,9 @@ export default function Header() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const { totalItems, openCart } = useCart()
+  const { data: categories = [] } = useCategories()
+
+  const categoryLinks: MenuProps['items'] = categories.map((c) => ({ key: c.slug, label: c.name }))
 
   const userMenuItems: MenuProps['items'] = [
     {
@@ -102,7 +100,10 @@ export default function Header() {
               <Dropdown menu={{ items: userMenuItems }} trigger={['click']} placement="bottomRight">
                 <button type="button" className="flex items-center gap-1.5 hover:text-black transition">
                   <UserOutlined className="text-sm" />
-                  <span className="hidden md:inline text-[11px] font-medium">Sign In</span>
+                  <span className="hidden max-w-[100px] truncate md:inline text-[11px] font-medium">
+                    {user.name}
+                  </span>
+                  <DownOutlined className="hidden text-[8px] md:inline" />
                 </button>
               </Dropdown>
             ) : (
@@ -115,6 +116,8 @@ export default function Header() {
                 <span className="hidden md:inline text-[11px] font-medium">Sign In</span>
               </button>
             )}
+
+            {user && <NotificationBell audience="customer" />}
 
             <Link to="/favorites" className="flex items-center gap-1.5 hover:text-black transition">
               <HeartOutlined className="text-sm" />
@@ -145,11 +148,11 @@ export default function Header() {
           ))}
           <li>
             <Dropdown
-              menu={{ items: productLinks, onClick: (info) => navigate(`/products/${info.key}`) }}
+              menu={{ items: categoryLinks, onClick: (info) => navigate(`/categories/${info.key}`) }}
               trigger={['hover']}
             >
               <Link to="/products" className="flex items-center gap-1 hover:text-black transition-colors">
-                PRODUCTS <DownOutlined className="text-[8px]" />
+                CATEGORIES <DownOutlined className="text-[8px]" />
               </Link>
             </Dropdown>
           </li>
@@ -179,9 +182,20 @@ export default function Header() {
             ))}
             <li>
               <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block py-1">
-                PRODUCTS
+                CATEGORIES
               </Link>
             </li>
+            {categories.map((category) => (
+              <li key={category.id}>
+                <Link
+                  to={`/categories/${category.slug}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block py-1 pl-3 text-[11px] text-neutral-600"
+                >
+                  {category.name}
+                </Link>
+              </li>
+            ))}
             <li>
               <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="block py-1">
                 ABOUT US

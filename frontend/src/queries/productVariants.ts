@@ -6,13 +6,20 @@ import {
   type ProductVariantFormValues,
 } from '../schemas/productVariant'
 
-export function useProductVariants(productId: string | undefined) {
-  return useQuery({
+// Shared with ProductCard's quick add, so both read from the same cache entry.
+export function productVariantsQuery(productId: string | undefined) {
+  return {
     queryKey: ['products', productId, 'variants'],
     queryFn: async () => {
       const json = await apiClient.get(`/products/${productId}/variants`)
       return productVariantListResponseSchema.parse(json)
     },
+  }
+}
+
+export function useProductVariants(productId: string | undefined) {
+  return useQuery({
+    ...productVariantsQuery(productId),
     select: (parsed) => parsed.data,
     enabled: !!productId,
   })

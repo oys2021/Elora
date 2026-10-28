@@ -1,15 +1,27 @@
-import { Tag, Spin } from 'antd'
+import { useRef, useState } from 'react'
+import { Tag, Spin, Pagination } from 'antd'
 import Header from '../components/layout/Header'
 import Footer from '../components/layout/Footer'
 import FloatingActions from '../components/common/FloatingActions'
 import { useAuth } from '../context/AuthContext'
 import { useOrders } from '../queries/orders'
 import { orderStatusColors } from '../schemas/order'
+import { formatDateTime } from '../utils/formatDateTime'
+
+const PAGE_SIZE = 10
 
 export default function Orders() {
   const { user, isLoading: authLoading } = useAuth()
-  const { data, isLoading } = useOrders({ userId: user?.id, enabled: !!user?.id })
+  const [page, setPage] = useState(1)
+  const listTopRef = useRef<HTMLHeadingElement>(null)
+  const { data, isLoading, isFetching } = useOrders({ userId: user?.id, page, limit: PAGE_SIZE, enabled: !!user?.id })
   const orders = data?.orders ?? []
+  const total = data?.meta?.total ?? orders.length
+
+  const goToPage = (next: number) => {
+    setPage(next)
+    listTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FAF8F5]">
@@ -17,7 +29,9 @@ export default function Orders() {
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-12 sm:px-6 sm:py-16">
         <span className="text-xs font-semibold uppercase tracking-widest text-[#b97a8c]">Account History</span>
-        <h1 className="mt-1 font-serif text-3xl font-normal text-neutral-900 sm:text-4xl">My Orders</h1>
+        <h1 ref={listTopRef} className="mt-1 scroll-mt-24 font-serif text-3xl font-normal text-neutral-900 sm:text-4xl">
+          My Orders
+        </h1>
 
         {(authLoading || (isLoading && user)) && (
           <div className="mt-12 flex justify-center">
@@ -34,7 +48,11 @@ export default function Orders() {
         )}
 
         {user && !isLoading && orders.length > 0 && (
-          <div className="mt-8 divide-y divide-neutral-200/80 rounded-xl border border-neutral-200/80 bg-white shadow-sm">
+          <div
+            className={`mt-8 divide-y divide-neutral-200/80 rounded-xl border border-neutral-200/80 bg-white shadow-sm transition-opacity ${
+              isFetching ? 'opacity-60' : ''
+            }`}
+          >
             {orders.map((order) => (
               <div key={order.id} className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -45,7 +63,7 @@ export default function Orders() {
                     </Tag>
                   </div>
                   <p className="mt-1 text-[11px] text-neutral-400">
-                    {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : ''}
+                    {formatDateTime(order.createdAt)}
                   </p>
                   <p className="mt-1.5 text-xs text-neutral-600">
                     {order.OrderItems.map((item) => item.ProductVariant?.Product?.name ?? 'Item').join(', ')}
@@ -56,6 +74,15 @@ export default function Orders() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {user && !isLoading && total > PAGE_SIZE && (
+          <div className="mt-6 flex flex-col items-center gap-2">
+            <Pagination current={page} pageSize={PAGE_SIZE} total={total} onChange={goToPage} showSizeChanger={false} />
+            <p className="text-[11px] text-neutral-400">
+              Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of {total} orders
+            </p>
           </div>
         )}
       </main>

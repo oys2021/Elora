@@ -1,27 +1,30 @@
 import { useState } from 'react'
 import { Button } from 'antd'
 import { useAuth } from '../../context/AuthContext'
-import { useReviews, useCreateReview } from '../../queries/reviews'
+import { useReviews, useReviewPages, useCreateReview } from '../../queries/reviews'
 import type { ReviewFormValues } from '../../schemas/review'
 import StarRating from '../common/StarRating'
 import WriteReviewModal from './WriteReviewModal'
 import AuthModal from '../layout/AuthModal'
+import ShowMore from '../common/ShowMore'
 
 export default function ReviewsSection({ productId }: { productId: string }) {
   const { user } = useAuth()
+  // Summary covers every review; the list below loads 5 at a time.
   const { data, isLoading } = useReviews(productId)
+  const pages = useReviewPages(productId)
   const createReview = useCreateReview(productId)
 
   const [modalOpen, setModalOpen] = useState(false)
   const [authModalOpen, setAuthModalOpen] = useState(false)
 
-  const reviews = data?.reviews ?? []
+  const reviews = pages.data?.pages.flatMap((p) => p.data) ?? []
   const averageRating = data?.averageRating ?? 0
   const reviewCount = data?.reviewCount ?? 0
 
   const ratingBreakdown = [5, 4, 3, 2, 1].map((stars) => ({
     stars,
-    count: reviews.filter((r) => r.rating === stars).length,
+    count: data?.ratingBreakdown[String(stars)] ?? 0,
   }))
   const totalForBreakdown = reviewCount || 1
 
@@ -103,6 +106,17 @@ export default function ReviewsSection({ productId }: { productId: string }) {
           </div>
         ))}
       </div>
+
+      {reviews.length > 0 && (
+        <ShowMore
+          shown={reviews.length}
+          total={reviewCount}
+          noun="reviews"
+          hasMore={!!pages.hasNextPage}
+          loading={pages.isFetchingNextPage}
+          onClick={() => pages.fetchNextPage()}
+        />
+      )}
 
       <WriteReviewModal
         open={modalOpen}

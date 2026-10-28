@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../api/client'
 import {
   orderListResponseSchema,
@@ -29,6 +29,8 @@ export function useOrders(filter: OrdersFilter = {}) {
     },
     select: (parsed) => ({ orders: parsed.data, meta: parsed.meta }),
     enabled,
+    // Keep showing the current page while the next one loads (no empty flash).
+    placeholderData: keepPreviousData,
   })
 }
 

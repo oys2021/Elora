@@ -3,15 +3,14 @@ import { fn, col, where as sqlWhere, Op, UniqueConstraintError } from 'sequelize
 import User from '../models/user.model.js';
 import AppError from '../utils/AppError.js';
 import { hashPassword, verifyPassword } from '../utils/password.js';
-import { sendPasswordResetEmail } from './dummyEmail.service.js';
+import { sendPasswordResetEmail } from './email.service.js';
 
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 const hashToken = (token) => createHash('sha256').update(token).digest('hex');
 
 const emailMatches = (email) => sqlWhere(fn('lower', col('email')), email.toLowerCase());
 
-// Verified against when the account doesn't exist, so a wrong username takes
-// as long as a wrong password and can't be told apart by timing.
+
 const dummyHash = hashPassword('not-a-real-password');
 
 export const registerUser = async ({ username, email, password }) => {
@@ -31,12 +30,11 @@ export const registerUser = async ({ username, email, password }) => {
   try {
     return await User.create({
       username: usernameKey,
-      name: username, // shown in the UI with the capitalisation they chose
+      name: username, 
       email: email.toLowerCase(),
       passwordHash: await hashPassword(password),
     });
   } catch (err) {
-    // Two people registering the same name at the same moment.
     if (err instanceof UniqueConstraintError) {
       throw new AppError('That username or email is already in use', 409, 'ACCOUNT_EXISTS');
     }
@@ -44,7 +42,6 @@ export const registerUser = async ({ username, email, password }) => {
   }
 };
 
-// Called after every successful sign-in / sign-up; feeds the admin Users page.
 export const recordLogin = (user) => user.update({ lastLoginAt: new Date() });
 
 export const authenticateUser = async ({ identifier, password }) => {
@@ -55,16 +52,11 @@ export const authenticateUser = async ({ identifier, password }) => {
 
   const passwordOk = await verifyPassword(password, user?.passwordHash ?? (await dummyHash));
   if (!user || !user.passwordHash || !passwordOk) {
-    // Same message whether the account or the password was wrong.
     throw new AppError('Invalid username or password', 401, 'INVALID_CREDENTIALS');
   }
   return user;
 };
 
-// Always behaves the same whether or not the email is registered, so this
-// can't be used to find out which emails have accounts. This also works for
-// a Google-only account (no password yet) — the link lets it set one and
-// start logging in with a password too.
 export const requestPasswordReset = async (email) => {
   const user = await User.findOne({ where: emailMatches(email.trim()) });
   if (!user) return;
@@ -76,7 +68,16 @@ export const requestPasswordReset = async (email) => {
   });
 
   const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
-  await sendPasswordResetEmail({ to: user.email, resetUrl: `${frontendUrl}/reset-password?token=${token}` });
+  try {
+    await sendPasswordResetEmail({ to: user.email, resetUrl: `${frontendUrl}/reset-password?token=${token}` });
+  } catch (err) {
+    // The token is already saved, so the link still works if the customer gets
+    // it another way. Don't let a transient SMTP hiccup turn into a scary 500
+    // for them, and don't let the response differ from the "email not found"
+    // case either — that would leak which emails are registered. Log loudly
+    // instead, so a real delivery problem shows up in the server logs.
+    console.error('Failed to send password reset email:', err);
+  }
 };
 
 export const resetPassword = async ({ token, password }) => {

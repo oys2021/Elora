@@ -2,6 +2,7 @@ import 'dotenv/config';
 import app from './app.js';
 import { sequelize } from './config/database.js';
 import logger from './utils/logger.js';
+import { startPaymentReconciler } from './services/payment.service.js';
 
 const port = process.env.PORT || 8000;
 
@@ -16,6 +17,7 @@ async function start() {
       process.exit(1);
     }
     logger.info(`Server listening on port ${port}`);
+    startPaymentReconciler();
   });
 }
 

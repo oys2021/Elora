@@ -11,7 +11,8 @@ interface ProductSectionProps {
 
 export default function ProductSection({ title, products, showViewMore }: ProductSectionProps) {
   const [expanded, setExpanded] = useState(false)
-  const visible = expanded ? products : products.slice(0, 8)
+  // Two full rows on desktop (5 per row).
+  const visible = expanded ? products : products.slice(0, 10)
 
   return (
     <section className="w-full py-6 sm:py-10">
@@ -23,14 +24,14 @@ export default function ProductSection({ title, products, showViewMore }: Produc
           </div>
         </div>
 
-        {/* 2-column mobile, 4-column desktop grid with responsive gaps */}
-        <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4">
+        {/* 2-column mobile, 5-column desktop grid with responsive gaps */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:gap-6 lg:grid-cols-4 xl:grid-cols-5">
           {visible.map((product, i) => (
             <ProductCard key={`${product.id}-${i}`} product={product} />
           ))}
         </div>
 
-        {showViewMore && !expanded && products.length > 8 && (
+        {showViewMore && !expanded && products.length > 10 && (
           <div className="mt-8 flex justify-center">
             <button
               type="button"

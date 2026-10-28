@@ -1,12 +1,48 @@
-import { useState } from 'react'
-import { Input, Button } from 'antd'
+import { useState, type FormEvent } from 'react'
+import { Input, Button, Alert } from 'antd'
 import { ArrowRightOutlined } from '@ant-design/icons'
+import { useMutation } from '@tanstack/react-query'
 import Header from '../components/layout/Header'
 import Footer from '../components/layout/Footer'
 import FloatingActions from '../components/common/FloatingActions'
+import { useAuth } from '../context/AuthContext'
+import { apiClient, ApiError } from '../api/client'
 
 export default function Contact() {
+  const { user } = useAuth()
   const [submitted, setSubmitted] = useState(false)
+  const [firstName, setFirstName] = useState(() => user?.name.split(' ')[0] ?? '')
+  const [lastName, setLastName] = useState(() => user?.name.split(' ').slice(1).join(' ') ?? '')
+  const [email, setEmail] = useState(() => user?.email ?? '')
+  const [subject, setSubject] = useState('')
+  const [message, setMessage] = useState('')
+
+  // Saved on the server and emailed to the store (and a "we got it" email to the sender).
+  const send = useMutation({
+    mutationFn: () =>
+      apiClient.post('/contact', {
+        name: `${firstName.trim()} ${lastName.trim()}`.trim(),
+        email: email.trim(),
+        subject: subject.trim(),
+        message: message.trim(),
+      }),
+    onSuccess: () => {
+      setSubmitted(true)
+      setSubject('')
+      setMessage('')
+    },
+  })
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    send.mutate()
+  }
+  const sendError =
+    send.error instanceof ApiError
+      ? Object.values(send.error.details ?? {})[0] ?? send.error.message
+      : send.error
+        ? 'Could not send your message. Please check your connection and try again.'
+        : null
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -72,24 +108,22 @@ export default function Contact() {
               <div className="flex h-full flex-col justify-center rounded-2xl bg-neutral-50 p-8 text-center sm:p-12">
                 <h3 className="font-serif text-2xl text-neutral-900">Thank you!</h3>
                 <p className="mt-2 text-sm text-neutral-600">
-                  Your message has been sent. We'll get back to you shortly.
+                  Your message has been sent. We've emailed you a copy and will get back to you within 1–2 working days.
                 </p>
                 <button
                   type="button"
-                  onClick={() => setSubmitted(false)}
+                  onClick={() => {
+                    send.reset()
+                    setSubmitted(false)
+                  }}
                   className="mt-6 text-xs font-semibold text-neutral-900 underline hover:text-pink-500"
                 >
                   Send another message
                 </button>
               </div>
             ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  setSubmitted(true)
-                }}
-                className="space-y-6"
-              >
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {sendError && <Alert type="error" showIcon message={sendError} />}
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-xs font-medium text-neutral-700">
@@ -97,6 +131,8 @@ export default function Contact() {
                     </label>
                     <Input
                       placeholder="Jane"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
                       size="large"
                       required
                       className="!rounded-none !border-0 !border-b !border-neutral-300 !px-0 !pb-2.5 !shadow-none transition-colors hover:!border-neutral-900 focus:!border-neutral-900 focus:!shadow-none"
@@ -108,6 +144,8 @@ export default function Contact() {
                     </label>
                     <Input
                       placeholder="Doe"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
                       size="large"
                       required
                       className="!rounded-none !border-0 !border-b !border-neutral-300 !px-0 !pb-2.5 !shadow-none transition-colors hover:!border-neutral-900 focus:!border-neutral-900 focus:!shadow-none"
@@ -122,6 +160,8 @@ export default function Contact() {
                   <Input
                     type="email"
                     placeholder="jane@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     size="large"
                     required
                     className="!rounded-none !border-0 !border-b !border-neutral-300 !px-0 !pb-2.5 !shadow-none transition-colors hover:!border-neutral-900 focus:!border-neutral-900 focus:!shadow-none"
@@ -134,6 +174,8 @@ export default function Contact() {
                   </label>
                   <Input
                     placeholder="Order Inquiry, Product Recommendation..."
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
                     size="large"
                     required
                     className="!rounded-none !border-0 !border-b !border-neutral-300 !px-0 !pb-2.5 !shadow-none transition-colors hover:!border-neutral-900 focus:!border-neutral-900 focus:!shadow-none"
@@ -146,6 +188,8 @@ export default function Contact() {
                   </label>
                   <Input.TextArea
                     placeholder="Write your message here..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                     rows={4}
                     required
                     className="!rounded-none !border-0 !border-b !border-neutral-300 !px-0 !pb-2.5 !shadow-none transition-colors hover:!border-neutral-900 focus:!border-neutral-900 focus:!shadow-none"
@@ -156,10 +200,11 @@ export default function Contact() {
                   <Button
                     type="primary"
                     htmlType="submit"
+                    loading={send.isPending}
                     size="large"
                     className="!flex !h-12 !items-center !justify-center !gap-3 !rounded-full !bg-neutral-900 !px-8 text-xs font-medium uppercase tracking-widest text-white transition hover:!bg-black hover:!opacity-90"
                   >
-                    <span>Submit Request</span>
+                    <span>{send.isPending ? 'Sending…' : 'Submit Request'}</span>
                     <ArrowRightOutlined className="text-xs" />
                   </Button>
                 </div>

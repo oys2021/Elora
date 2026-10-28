@@ -12,7 +12,7 @@ import passport from 'passport';
 import routes from './routes/index.js';
 import authRoutes from './routes/auth.routes.js';
 import logger from './utils/logger.js';
-import './config/passport.js'; // registers the Google strategy
+import './config/passport.js'; // session (de)serialisation for password login
 
 const PgSession = connectPgSimple(session);
 const sessionPool = new pg.Pool({
@@ -35,8 +35,30 @@ app.use(
 );
 app.use(compression());
 app.use(cookieParser());
-app.use(express.json());
-app.use(pinoHttp({ logger }));
+// Keep the exact bytes too: the Paystack webhook's signature is computed over
+// the raw body, and re-serialising the parsed JSON wouldn't match it.
+app.use(
+  express.json({
+    verify: (req, _res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
+// Only failed requests are logged, as one short line (no headers/cookies).
+app.use(
+  pinoHttp({
+    logger,
+    customLogLevel: (_req, res, err) => {
+      if (err || res.statusCode >= 500) return 'error';
+      if (res.statusCode >= 400) return 'warn';
+      return 'silent';
+    },
+    serializers: {
+      req: (req) => ({ method: req.method, url: req.url }),
+      res: (res) => ({ statusCode: res.statusCode }),
+    },
+  })
+);
 
 // Session + Passport (must come before any route that uses req.user)
 app.use(
@@ -60,20 +82,6 @@ app.use('/api/v1', routes);
 
 // Username / email + password auth (POST /auth/register, POST /auth/login)
 app.use('/auth', authRoutes);
-
-// Google auth routes
-app.get(
-  '/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
-
-app.get(
-  '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
-  (req, res) => {
-    res.redirect('http://localhost:5173'); // your React app
-  }
-);
 
 app.get('/auth/logout', (req, res) => {
   req.logout(() => res.redirect(process.env.FRONTEND_URL || 'http://localhost:5173'));

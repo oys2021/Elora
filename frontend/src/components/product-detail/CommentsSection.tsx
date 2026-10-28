@@ -3,10 +3,14 @@ import { Button, Input, message } from 'antd'
 import { useAuth } from '../../context/AuthContext'
 import { useComments, useCreateComment } from '../../queries/comments'
 import AuthModal from '../layout/AuthModal'
+import ShowMore from '../common/ShowMore'
 
 export default function CommentsSection({ productId }: { productId: string }) {
   const { user } = useAuth()
-  const { data: comments = [], isLoading } = useComments(productId)
+  const pages = useComments(productId)
+  const comments = pages.data?.pages.flatMap((p) => p.data) ?? []
+  const totalComments = pages.data?.pages[0]?.meta?.total ?? comments.length
+  const isLoading = pages.isLoading
   const createComment = useCreateComment(productId)
 
   const [body, setBody] = useState('')
@@ -76,6 +80,17 @@ export default function CommentsSection({ productId }: { productId: string }) {
           </div>
         ))}
       </div>
+
+      {comments.length > 0 && (
+        <ShowMore
+          shown={comments.length}
+          total={totalComments}
+          noun="comments"
+          hasMore={!!pages.hasNextPage}
+          loading={pages.isFetchingNextPage}
+          onClick={() => pages.fetchNextPage()}
+        />
+      )}
 
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </section>

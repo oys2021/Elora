@@ -1,22 +1,15 @@
-import { useMemo, useState } from 'react'
-import { ExportOutlined, MinusOutlined, PlusOutlined, ShoppingCartOutlined } from '@ant-design/icons'
+import { useState } from 'react'
+import { ExportOutlined, ShoppingCartOutlined } from '@ant-design/icons'
 import type { Product } from '../../schemas/product'
 import type { ProductVariant } from '../../schemas/productVariant'
 import { useCart } from '../../context/CartContext'
 import { useReviews } from '../../queries/reviews'
+import { useVariantSelection } from '../../hooks/useVariantSelection'
 import StarRating from '../common/StarRating'
 import FavoriteButton from '../common/FavoriteButton'
-import { colorHex } from '../../utils/hairColors'
+import VariantPicker, { QuantityStepper } from '../common/VariantPicker'
 
 const payments = ['MTN', 'Telecel', 'AirtelTigo']
-
-type VariantDimensionKey = 'lengthOption' | 'densityOption' | 'colorOption'
-
-const dimensionLabels: Record<VariantDimensionKey, string> = {
-  lengthOption: 'Length',
-  densityOption: 'Density',
-  colorOption: 'Colour',
-}
 
 interface PurchasePanelProps {
   product: Product
@@ -26,49 +19,9 @@ interface PurchasePanelProps {
 export default function PurchasePanel({ product, variants }: PurchasePanelProps) {
   const { addItem } = useCart()
   const { data: reviewData } = useReviews(product.id)
-
-  const dimensions = useMemo(() => {
-    const keys: VariantDimensionKey[] = ['lengthOption', 'densityOption', 'colorOption']
-    return keys
-      .map((key) => ({
-        key,
-        label: dimensionLabels[key],
-        options: Array.from(new Set(variants.map((v) => v[key]).filter((v): v is string => !!v))),
-      }))
-      .filter((dim) => dim.options.length > 0)
-  }, [variants])
-
-  // The selection is always a real variant, so the price and stock shown are
-  // always those of something the customer can actually buy. Start on the
-  // first variant that is in stock.
-  const [variantId, setVariantId] = useState<string | undefined>(
-    () => (variants.find((v) => v.stockQuantity > 0) ?? variants[0])?.id,
-  )
+  // Same option-picking as the quick-add popup on product cards.
+  const { dimensions, matchedVariant, selectOption, price, inStock, lowStock, variantLabel } = useVariantSelection(product, variants)
   const [quantity, setQuantity] = useState(1)
-
-  const matchedVariant: ProductVariant | undefined =
-    variants.find((v) => v.id === variantId) ?? variants[0]
-
-  // Picking an option moves to the closest variant that has it: keep the other
-  // current choices if that combination exists, otherwise prefer one in stock.
-  const selectOption = (key: VariantDimensionKey, option: string) => {
-    const withOption = variants.filter((v) => v[key] === option)
-    const best =
-      withOption.find((v) => dimensions.every((d) => d.key === key || v[d.key] === matchedVariant?.[d.key])) ??
-      withOption.find((v) => v.stockQuantity > 0) ??
-      withOption[0]
-    if (best) setVariantId(best.id)
-  }
-
-  const price = matchedVariant ? matchedVariant.price : product.basePrice
-  // Out if there's no variant, its stock is 0, or an admin manually flagged
-  // the product out of stock (which overrides actual variant stock).
-  const inStock = !product.isOutOfStock && (matchedVariant ? matchedVariant.stockQuantity > 0 : false)
-  const variantLabel = matchedVariant
-    ? [matchedVariant.lengthOption, matchedVariant.densityOption, matchedVariant.colorOption]
-        .filter(Boolean)
-        .join(' / ')
-    : undefined
 
   const handleAddToCart = () => {
     if (!matchedVariant) return
@@ -83,8 +36,6 @@ export default function PurchasePanel({ product, variants }: PurchasePanelProps)
       quantity,
     )
   }
-
-  const lowStock = matchedVariant && inStock && matchedVariant.stockQuantity <= 10
 
   return (
     <div>
@@ -126,83 +77,15 @@ export default function PurchasePanel({ product, variants }: PurchasePanelProps)
         {!inStock
           ? 'Out of stock'
           : lowStock
-            ? `Low stock: ${matchedVariant.stockQuantity} left`
+            ? `Low stock: ${matchedVariant?.stockQuantity} left`
             : 'In stock'}
       </p>
 
-      {dimensions.map((dim) => (
-        <div key={dim.key} className="mt-6">
-          <p className="mb-2.5 text-sm font-semibold text-neutral-900">
-            {dim.label}
-            {dim.key === 'colorOption' && matchedVariant?.colorOption && (
-              <span className="font-normal"> : {matchedVariant.colorOption}</span>
-            )}
-          </p>
-
-          {dim.key === 'colorOption' ? (
-            <div className="flex flex-wrap gap-3">
-              {dim.options.map((opt) => {
-                const selectedColour = matchedVariant?.colorOption === opt
-                return (
-                  <button
-                    key={opt}
-                    type="button"
-                    title={opt}
-                    aria-label={opt}
-                    aria-pressed={selectedColour}
-                    onClick={() => selectOption('colorOption', opt)}
-                    className={`h-16 w-16 rounded transition ${
-                      selectedColour
-                        ? 'ring-2 ring-neutral-900 ring-offset-2'
-                        : 'ring-1 ring-black/10 hover:ring-neutral-400'
-                    }`}
-                    style={{ backgroundColor: colorHex(opt) ?? '#d4d4d4' }}
-                  />
-                )
-              })}
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {dim.options.map((opt) => (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => selectOption(dim.key, opt)}
-                  className={`rounded-xl border px-3.5 py-1.5 text-[11px] font-semibold shadow-sm transition ${
-                    matchedVariant?.[dim.key] === opt
-                      ? 'border-neutral-500 bg-neutral-500 text-white'
-                      : 'border-neutral-200 bg-white text-neutral-900 hover:border-neutral-400'
-                  }`}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
+      <VariantPicker dimensions={dimensions} selected={matchedVariant} onSelect={selectOption} />
 
       <div className="mt-6">
         <p className="mb-2.5 text-sm font-semibold text-neutral-900">Quantity</p>
-        <div className="inline-flex items-center rounded-xl border border-neutral-300">
-          <button
-            type="button"
-            aria-label="Decrease quantity"
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            className="flex h-9 w-9 items-center justify-center text-neutral-600 hover:text-black"
-          >
-            <MinusOutlined className="text-xs" />
-          </button>
-          <span className="w-10 text-center text-sm">{quantity}</span>
-          <button
-            type="button"
-            aria-label="Increase quantity"
-            onClick={() => setQuantity((q) => q + 1)}
-            className="flex h-9 w-9 items-center justify-center text-neutral-600 hover:text-black"
-          >
-            <PlusOutlined className="text-xs" />
-          </button>
-        </div>
+        <QuantityStepper value={quantity} onChange={setQuantity} />
       </div>
 
       <div className="mt-6 flex items-center gap-3">

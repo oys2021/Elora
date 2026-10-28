@@ -9,6 +9,9 @@ import Review from './Review.js';
 import Comment from './Comment.js';
 import Favorite from './Favorite.js';
 import Banner from './Banner.js';
+import DeliveryZone from './DeliveryZone.js';
+import Notification from './Notification.js';
+import ContactMessage from './ContactMessage.js';
 
 Category.hasMany(Product, { foreignKey: 'categoryId' });
 Product.belongsTo(Category, { foreignKey: 'categoryId' });
@@ -40,5 +43,37 @@ Favorite.belongsTo(Product, { foreignKey: 'productId' });
 User.hasMany(Favorite, { foreignKey: 'userId', onDelete: 'CASCADE' });
 Favorite.belongsTo(User, { foreignKey: 'userId' });
 
-export { sequelize, Category, Product, ProductVariant, User, Order, OrderItem, Review, Comment, Favorite, Banner };
-export default { Category, Product, ProductVariant, User, Order, OrderItem, Review, Comment, Favorite, Banner };
+DeliveryZone.hasMany(Order, { foreignKey: 'deliveryZoneId' });
+Order.belongsTo(DeliveryZone, { foreignKey: 'deliveryZoneId' });
+
+export {
+  sequelize,
+  Category,
+  Product,
+  ProductVariant,
+  User,
+  Order,
+  OrderItem,
+  Review,
+  Comment,
+  Favorite,
+  Banner,
+  DeliveryZone,
+  Notification,
+  ContactMessage,
+};
+export default {
+  Category,
+  Product,
+  ProductVariant,
+  User,
+  Order,
+  OrderItem,
+  Review,
+  Comment,
+  Favorite,
+  Banner,
+  DeliveryZone,
+  Notification,
+  ContactMessage,
+};

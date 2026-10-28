@@ -5,6 +5,7 @@ import { useCategories } from '../../queries/categories'
 import { useOrders } from '../../queries/orders'
 import { useUsers } from '../../queries/users'
 import { orderStatusColors } from '../../schemas/order'
+import { formatDateTime } from '../../utils/formatDateTime'
 
 export default function AdminDashboard() {
   const { data: products = [] } = useProducts()
@@ -53,6 +54,7 @@ export default function AdminDashboard() {
             <div className="hidden gap-4 border-b border-neutral-100 pb-2 text-xs font-medium uppercase tracking-wide text-neutral-400 sm:flex sm:items-center sm:justify-between">
               <span className="w-24 shrink-0">Order</span>
               <span className="flex-1">Customer</span>
+              <span className="w-44 shrink-0">Date</span>
               <span className="w-24 shrink-0">Status</span>
               <span className="w-28 shrink-0 text-right">Amount</span>
             </div>
@@ -64,6 +66,7 @@ export default function AdminDashboard() {
                 >
                   <span className="w-24 shrink-0 truncate text-neutral-700">{order.id.slice(0, 8).toUpperCase()}</span>
                   <span className="flex-1 truncate text-neutral-500">{order.customerName}</span>
+                  <span className="w-44 shrink-0 text-xs text-neutral-500">{formatDateTime(order.createdAt)}</span>
                   <span className="w-24 shrink-0">
                     <Tag color={orderStatusColors[order.status]}>{order.status}</Tag>
                   </span>

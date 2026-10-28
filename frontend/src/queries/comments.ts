@@ -1,15 +1,19 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../api/client'
 import { commentListResponseSchema, commentResponseSchema, type CommentFormValues } from '../schemas/comment'
 
+export const COMMENTS_PAGE_SIZE = 5
+
+// Newest first, a page at a time ("Show more comments").
 export function useComments(productId: string | undefined) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['products', productId, 'comments'],
-    queryFn: async () => {
-      const json = await apiClient.get(`/products/${productId}/comments?limit=50`)
+    queryFn: async ({ pageParam }) => {
+      const json = await apiClient.get(`/products/${productId}/comments?page=${pageParam}&limit=${COMMENTS_PAGE_SIZE}`)
       return commentListResponseSchema.parse(json)
     },
-    select: (parsed) => parsed.data,
+    initialPageParam: 1,
+    getNextPageParam: (last) => (last.meta && last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined),
     enabled: !!productId,
   })
 }

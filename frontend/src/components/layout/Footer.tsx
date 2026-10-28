@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { FacebookFilled, InstagramFilled, TwitterOutlined } from '@ant-design/icons'
+import NetworkLogo from '../common/NetworkLogo'
 
 const businessInfo = [
   { label: 'About Elora', to: '/about' },
@@ -152,24 +153,9 @@ export default function Footer() {
                 WE ACCEPT
               </h3>
               <div className="flex flex-wrap items-center gap-2">
-                {/* MTN */}
-                <div className="flex h-8 w-12 items-center justify-center rounded bg-[#FFCC00]">
-                  <span className="rounded-full border border-black/80 px-1 py-0.5 text-[9px] font-black text-black">
-                    MTN
-                  </span>
-                </div>
-                {/* Telecel */}
-                <div className="flex h-8 items-center justify-center rounded bg-white px-2">
-                  <span className="text-xs font-bold text-red-600">
-                    <span className="font-extrabold">t</span> telecel
-                  </span>
-                </div>
-                {/* AirtelTigo */}
-                <div className="flex h-8 items-center justify-center rounded bg-white px-2">
-                  <span className="text-xs font-bold text-blue-700">
-                    airtel<span className="text-red-500">tigo</span>
-                  </span>
-                </div>
+                <NetworkLogo provider="MTN" />
+                <NetworkLogo provider="TELECEL" />
+                <NetworkLogo provider="AIRTELTIGO" />
               </div>
             </div>
           </div>
