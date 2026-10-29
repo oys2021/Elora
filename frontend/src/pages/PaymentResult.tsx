@@ -195,8 +195,12 @@ export default function PaymentResult() {
     body = (
       <Outcome
         tone="error"
-        title="This order has expired"
-        text="It wasn't paid in time, so it was cancelled and nothing was charged. Your bag is still saved."
+        title={isMomo ? "The payment didn't go through" : 'This order has expired'}
+        text={
+          isMomo
+            ? "We couldn't complete the mobile money payment, so the order was cancelled and nothing was charged. Your bag is still saved — please try again."
+            : "It wasn't paid in time, so it was cancelled and nothing was charged. Your bag is still saved."
+        }
       >
         <PrimaryButton onClick={() => navigate('/checkout')}>Back to checkout</PrimaryButton>
       </Outcome>

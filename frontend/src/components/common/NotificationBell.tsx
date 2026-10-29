@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Badge, Popover, Spin } from 'antd'
 import { BellOutlined } from '@ant-design/icons'
@@ -20,21 +20,30 @@ export default function NotificationBell({ audience, className = '' }: { audienc
   const { data: unread = 0 } = useUnreadCount(audience, true)
   const { data: items = [], isLoading } = useNotifications(audience, open)
   const markRead = useMarkNotificationRead(audience)
-  const markAllRead = useMarkAllNotificationsRead(audience)
+  const { mutate: markAllRead } = useMarkAllNotificationsRead(audience)
+  // Ids that were unread when the bell was opened: they keep their "new"
+  // highlight until it closes, even though they're already marked read.
+  const [freshIds, setFreshIds] = useState<Set<string>>(new Set())
+
+  // Opening the bell counts as reading: clear the badge as soon as the list
+  // has loaded, but remember which items were new so they still stand out.
+  useEffect(() => {
+    if (!open || isLoading) return
+    const unreadNow = items.filter((n) => !n.readAt).map((n) => n.id)
+    if (unreadNow.length === 0) return
+    setFreshIds((prev) => new Set([...prev, ...unreadNow]))
+    markAllRead()
+  }, [open, isLoading, items, markAllRead])
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next)
+    if (!next) setFreshIds(new Set())
+  }
 
   const content = (
     <div className="w-80 max-w-[calc(100vw-2rem)]">
-      <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
+      <div className="border-b border-neutral-100 pb-2">
         <p className="text-sm font-semibold text-neutral-900">Notifications</p>
-        {unread > 0 && (
-          <button
-            type="button"
-            onClick={() => markAllRead.mutate()}
-            className="text-xs text-neutral-500 underline hover:text-neutral-900"
-          >
-            Mark all as read
-          </button>
-        )}
       </div>
       <div className="max-h-96 overflow-y-auto">
         {isLoading ? (
@@ -44,34 +53,37 @@ export default function NotificationBell({ audience, className = '' }: { audienc
         ) : items.length === 0 ? (
           <p className="py-6 text-center text-xs text-neutral-400">No notifications yet.</p>
         ) : (
-          items.map((n) => (
+          items.map((n) => {
+            const isNew = !n.readAt || freshIds.has(n.id)
+            return (
             <button
               key={n.id}
               type="button"
               onClick={() => {
                 if (!n.readAt) markRead.mutate(n.id)
-                setOpen(false)
+                handleOpenChange(false)
                 if (n.link) navigate(n.link)
               }}
               className={`flex w-full gap-2.5 border-b border-neutral-100 px-1 py-2.5 text-left last:border-0 hover:bg-neutral-50 ${
-                n.readAt ? '' : 'bg-rose-50/60'
+                isNew ? 'bg-rose-50/60' : ''
               }`}
             >
-              <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${n.readAt ? 'bg-transparent' : 'bg-rose-500'}`} />
+              <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${isNew ? 'bg-rose-500' : 'bg-transparent'}`} />
               <span className="min-w-0">
                 <span className="block text-xs font-semibold text-neutral-900">{n.title}</span>
                 {n.body && <span className="mt-0.5 block text-xs text-neutral-500">{n.body}</span>}
                 <span className="mt-1 block text-[10px] text-neutral-400">{formatDateTime(n.createdAt)}</span>
               </span>
             </button>
-          ))
+            )
+          })
         )}
       </div>
     </div>
   )
 
   return (
-    <Popover content={content} trigger="click" placement="bottomRight" open={open} onOpenChange={setOpen} arrow={false}>
+    <Popover content={content} trigger="click" placement="bottomRight" open={open} onOpenChange={handleOpenChange} arrow={false}>
       <button
         type="button"
         aria-label={unread > 0 ? `Notifications, ${unread} unread` : 'Notifications'}

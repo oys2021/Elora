@@ -189,18 +189,33 @@ export const createOrder = async ({
   // Payments start only after the order is committed, so Paystack never holds
   // a transaction for an order that doesn't exist.
   if (paymentMethod === 'MOBILE_MONEY') {
+    const chargeRequest = {
+      email: customerEmail,
+      amount: amountToCharge(order.totalAmount),
+      reference: order.paymentReference,
+      // Test key: swapped for Paystack's test number (see TEST_MOMO_PHONE in paystack.service.js).
+      ...momoTarget(momoPhone, momoProvider),
+      metadata: { orderId: order.id },
+    };
     let charge;
     try {
-      charge = await chargeMobileMoney({
-        email: customerEmail,
-        amount: amountToCharge(order.totalAmount),
-        reference: order.paymentReference,
-        // Test key: swapped for Paystack's test number (see TEST_MOMO_PHONE in paystack.service.js).
-        ...momoTarget(momoPhone, momoProvider),
-        metadata: { orderId: order.id },
-      });
+      try {
+        charge = await chargeMobileMoney(chargeRequest);
+      } catch (err) {
+        // No answer at all (network blip / timeout): try once more with the
+        // SAME reference. Paystack refuses a reference it has already seen, so
+        // this can never charge twice.
+        if (!(err instanceof PaystackError) || err.httpStatus) throw err;
+        logger.warn({ err, orderId: order.id }, 'Mobile money charge got no answer; retrying once');
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        charge = await chargeMobileMoney(chargeRequest);
+      }
     } catch (err) {
-      if (err instanceof PaystackError && typeof err.data?.status === 'string') {
+      if (err instanceof PaystackError && err.httpStatus && /duplicate/i.test(err.message)) {
+        // The first attempt did reach Paystack after all; it's in progress.
+        // Leave the order pending: the result page and reconciler confirm it.
+        logger.info({ orderId: order.id }, 'Retry found the first charge already at Paystack');
+      } else if (err instanceof PaystackError && typeof err.data?.status === 'string') {
         // "Charge attempted": Paystack did try the charge; the outcome is in
         // the body. Handle it below like a normal reply.
         charge = err.data;
@@ -214,10 +229,12 @@ export const createOrder = async ({
           400,
           'MOMO_CHARGE_FAILED'
         );
+      } else {
+        // Still no answer after the retry: the prompt may or may not have gone
+        // out. Keep the order pending; the result page cancels it after a
+        // minute if Paystack never heard of it, and the reconciler checks too.
+        logger.error({ err, orderId: order.id }, 'Mobile money charge outcome unknown');
       }
-      // No answer at all: the prompt may or may not have gone out. Keep the
-      // order pending; the result page and the reconciler will find out.
-      logger.error({ err, orderId: order.id }, 'Mobile money charge outcome unknown');
     }
 
     // Paystack: 'timeout' means the charge failed too (customer didn't approve in time).

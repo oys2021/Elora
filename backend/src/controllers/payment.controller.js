@@ -2,7 +2,12 @@ import { z } from 'zod';
 import { sendData } from '../utils/ApiResponse.js';
 import AppError from '../utils/AppError.js';
 import { isValidWebhookSignature, PaystackError, submitChargeOtp } from '../services/paystack.service.js';
-import { applyPaystackTransaction, confirmPaystackPayment, isPaystackInProgress } from '../services/payment.service.js';
+import {
+  applyPaystackTransaction,
+  cancelUnpaidOrder,
+  confirmPaystackPayment,
+  isPaystackInProgress,
+} from '../services/payment.service.js';
 import { Order } from '../models/index.js';
 
 const verifySchema = z.object({
@@ -46,6 +51,24 @@ export const verifyPaystack = async (req, res, next) => {
     }
 
     if (!result.order) throw new AppError('Payment not found', 404, 'PAYMENT_NOT_FOUND');
+
+    // A mobile money charge Paystack has never heard of, a minute after the
+    // order was placed, never reached them (e.g. a network failure) and never
+    // will: cancel it now (releases the stock) rather than leave the customer
+    // waiting. A charge that *was* attempted shows up immediately, so a
+    // minute is plenty.
+    const ageMs = Date.now() - new Date(result.order.createdAt).getTime();
+    if (
+      result.paystackStatus === 'not_found' &&
+      result.order.paymentMethod === 'MOBILE_MONEY' &&
+      result.order.status === 'PENDING' &&
+      ageMs > 60_000
+    ) {
+      const cancelled = await cancelUnpaidOrder(result.order.id);
+      sendData(res, toPaymentResult(cancelled ?? result.order, 'not_found'));
+      return;
+    }
+
     sendData(res, toPaymentResult(result.order, result.paystackStatus));
   } catch (err) {
     next(err);
